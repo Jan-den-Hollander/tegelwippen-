@@ -1,0 +1,1072 @@
+<!--
+================================================================================
+  © Jan den Hollander — jandenhollander@duck.com
+  GitHub: https://github.com/Jan-den-Hollander
+  Projectnaam: Tegelwippen
+  Versie: 1.0 | Datum: 2026-07-14
+
+  LICENTIE / LICENSE (NL | EN | IT)
+  NL: Dit werk is auteursrechtelijk beschermd. Vrij te gebruiken, delen en
+  verspreiden voor niet-commerciële doeleinden, ongewijzigd, met vermelding
+  van de oorspronkelijke auteur. Commercieel gebruik, wijziging, verkoop of
+  integratie in betaalde producten is verboden zonder schriftelijke
+  toestemming. Hulp is en blijft gratis.
+  EN: This work is protected by copyright. Free to use, share and distribute
+  for non-commercial purposes only, unmodified, with attribution. Commercial
+  use, modification or sale is prohibited without written consent.
+  IT: Quest'opera è protetta da diritto d'autore. Uso libero, non commerciale,
+  non modificato, con attribuzione. Uso commerciale vietato senza consenso.
+
+  Originele broncode: https://github.com/Jan-den-Hollander
+  Alle rechten voorbehouden © Jan den Hollander
+================================================================================
+  ⚠️ INTEGRITEITSWAARSCHUWING: dit bestand bevat een integriteitscontrole op
+  projectnaam, footer en modal. Verwijdering of wijziging blokkeert de app.
+================================================================================
+-->
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tegelwippen">
+<meta name="theme-color" content="#3d6b2c">
+<link rel="manifest" id="pwaManifestLink">
+<link rel="icon" id="pwaFavicon">
+<link rel="apple-touch-icon" id="pwaAppleIcon">
+<title>Tegelwippen</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap');
+:root{--terra:#3d6b2c;--lichtterra:#c97b3d;--groen:#5a8a4a;--wit:#f5f0e8;--donker:#1c1410;--lijn:rgba(201,123,61,0.25);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Mono',monospace;background:var(--donker);color:var(--wit);min-height:100vh;overflow-x:hidden;padding-bottom:28px;}
+.header{background:var(--terra);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--lichtterra);position:sticky;top:0;z-index:100;gap:8px;}
+.header-title{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;flex-shrink:0;}
+.header-title span{font-style:italic;font-weight:300;color:#f0c9a0;}
+.header-right{display:flex;align-items:center;gap:6px;}
+.proj-badge{font-size:.56rem;background:var(--donker);color:#f0c9a0;padding:4px 6px;border-radius:2px;text-transform:uppercase;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lang-btn{background:var(--donker);border:1px solid var(--lichtterra);color:#f0c9a0;font-size:.6rem;padding:5px 8px;border-radius:3px;cursor:pointer;font-family:'IBM Plex Mono',monospace;flex-shrink:0;}
+.tabs{display:flex;background:#241a12;border-bottom:1px solid var(--lijn);overflow-x:auto;}
+.tab{flex:1;min-width:52px;padding:8px 1px;text-align:center;font-size:.4rem;letter-spacing:.02em;text-transform:uppercase;color:#a3826a;cursor:pointer;border:none;background:none;line-height:1.3;}
+.tab.active{color:var(--wit);background:var(--terra);border-bottom:2px solid #f0c9a0;}
+.screen{display:none;padding:16px;}
+.screen.active{display:block;}
+.card{background:#2e2015;border:1px solid var(--lijn);border-radius:4px;padding:16px;margin-bottom:12px;}
+.label{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#f0c9a0;margin-bottom:6px;}
+.inp,select.inp,textarea.inp{width:100%;background:#1c1410;border:1px solid var(--lijn);color:var(--wit);padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:.85rem;border-radius:2px;margin-bottom:10px;}
+.inp:focus{outline:none;border-color:var(--lichtterra);}
+.gps-row{display:flex;gap:8px;align-items:center;}
+.gps-display{flex:1;background:#1c1410;border:1px solid var(--lijn);padding:8px 12px;font-size:.7rem;color:#a3826a;border-radius:2px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;font-family:'IBM Plex Mono',monospace;font-size:.75rem;letter-spacing:.06em;border:none;border-radius:2px;cursor:pointer;text-transform:uppercase;}
+.btn-primair{background:var(--terra);color:var(--wit);width:100%;padding:14px;font-size:.8rem;}
+.btn-primair:active{background:var(--lichtterra);transform:scale(.98);}
+.btn-klein{background:#2e2015;color:#f0c9a0;border:1px solid var(--lijn);font-size:.65rem;padding:7px 14px;}
+.btn-gps{background:var(--groen);color:#0f1a0c;font-size:.65rem;padding:8px 12px;flex-shrink:0;}
+.btn-gevaar{background:#4a1a1a;color:#e87070;border:1px solid #6a2a2a;}
+.btn-deel{background:#1a3a50;color:#70c8e8;border:1px solid #2a5a70;font-size:.7rem;padding:9px 14px;flex:1;}
+.btn-opslaan{background:var(--terra);color:var(--wit);font-size:.7rem;padding:9px 14px;width:100%;margin-top:6px;}
+.btn-pdf{background:#1a2a4a;color:#a0c8f0;border:1px solid #2a4a7a;font-size:.75rem;padding:12px;width:100%;font-family:'IBM Plex Mono',monospace;cursor:pointer;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.chip{background:#1c1410;border:1px solid var(--lijn);color:#f0c9a0;padding:7px 11px;border-radius:3px;font-size:.65rem;cursor:pointer;white-space:nowrap;}
+.chip.actief{background:var(--terra);border-color:var(--lichtterra);color:var(--wit);}
+.sectie-titel{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#a3826a;margin-bottom:10px;}
+.divider{border:none;border-top:1px solid var(--lijn);margin:14px 0;}
+.notif{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:var(--terra);color:var(--wit);padding:10px 20px;border-radius:4px;font-size:.75rem;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+.notif.zichtbaar{opacity:1;}
+.export-card{background:#2e2015;border:1px solid var(--lijn);border-radius:4px;padding:16px;margin-bottom:12px;text-align:center;}
+.export-desc{font-size:.7rem;color:#a3826a;line-height:1.6;margin-bottom:12px;}
+.stap-hint{font-size:.65rem;color:#a3826a;line-height:1.5;margin-bottom:8px;padding:6px 8px;background:#1c1410;border-radius:3px;}
+.foto-zone{border:2px dashed var(--lijn);border-radius:6px;padding:20px;text-align:center;margin-bottom:12px;cursor:pointer;}
+.foto-zone:active{background:#2e2015;}
+.foto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.foto-thumb{position:relative;aspect-ratio:1;border-radius:4px;overflow:hidden;border:1px solid var(--lijn);}
+.foto-thumb img{width:100%;height:100%;object-fit:cover;}
+.foto-verwijder{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.7);color:#e87070;border:none;border-radius:50%;width:20px;height:20px;font-size:.7rem;cursor:pointer;line-height:1;}
+.plant-item{background:#2e2015;border:1px solid var(--lijn);border-left:3px solid var(--groen);border-radius:0 4px 4px 0;padding:10px 12px;margin-bottom:8px;}
+.plant-naam{font-family:'Fraunces',serif;font-style:italic;font-size:.95rem;color:var(--wit);}
+.plant-meta{font-size:.68rem;color:#f0c9a0;line-height:1.6;}
+.badge{font-size:.55rem;padding:3px 7px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;display:inline-block;margin-top:3px;margin-right:4px;}
+.badge-zon{background:#4a3a0a;color:#e8c070;}
+.badge-schaduw{background:#1a2a3a;color:#70c8e8;}
+.badge-wind{background:#1a3a2a;color:#7dcf9a;}
+.badge-jaarrond{background:#2a1a3a;color:#c090e8;}
+.badge-bij{background:#4a3a00;color:#f0c060;}
+.badge-klim1{background:#1a3a2a;color:#7dcf9a;}
+.badge-klim2{background:#3a2a1a;color:#e8a870;}
+#kaartContainer{height:300px;border-radius:4px;overflow:hidden;margin-bottom:10px;border:1px solid var(--lijn);}
+.kaart-geen{background:#2e2015;height:100%;display:flex;align-items:center;justify-content:center;color:#a3826a;font-size:.75rem;text-align:center;border-radius:4px;}
+.leaflet-popup-content-wrapper{background:#2e2015 !important;color:var(--wit) !important;border:1px solid var(--lijn);border-radius:4px !important;font-family:'IBM Plex Mono',monospace;font-size:.7rem;}
+.leaflet-popup-tip{background:#2e2015 !important;}
+.kaart-controls{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.oppervlak-bar{background:#1c1410;border:1px solid var(--lijn);border-radius:4px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.oppervlak-getal{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:600;color:var(--wit);}
+.oppervlak-lbl{font-size:.55rem;text-transform:uppercase;color:#a3826a;}
+.klimaat-info{background:#1a2e1a;border-left:3px solid var(--groen);border-radius:0 3px 3px 0;padding:10px 12px;font-size:.7rem;color:#a8d4a0;margin-bottom:10px;line-height:1.6;}
+.eenheid-kader{background:#0f1f0d;border:2px solid var(--lijn);border-radius:6px;padding:14px;margin-top:14px;}
+.eenheid-titel{font-family:'Fraunces',serif;font-style:italic;color:#f0c9a0;font-size:.85rem;margin-bottom:10px;}
+.eenheid-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;}
+.eenheid-cirkel{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:600;font-size:1rem;color:#fff;border:2px solid rgba(255,255,255,.4);}
+.eenheid-legenda{display:flex;flex-direction:column;gap:5px;}
+.legenda-item{font-size:.68rem;color:#f0c9a0;display:flex;align-items:center;gap:8px;}
+.legenda-nr{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:600;color:#fff;flex-shrink:0;}
+.plattegrond-kader{background:#0f1f0d;border:2px solid var(--lijn);border-radius:6px;padding:10px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:5px;margin-top:12px;min-height:140px;}
+.plattegrond-stip{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:600;color:#fff;flex-shrink:0;opacity:.92;}
+</style>
+</head>
+<body>
+<script>
+(function() {
+  try {
+    var svgIcoon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#3d6b2c"/><text x="256" y="340" font-family="Georgia, serif" font-size="240" font-weight="700" fill="#f5f0e8" text-anchor="middle">T</text></svg>';
+    var iconDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgIcoon)));
+    var faviconEl = document.getElementById('pwaFavicon'); if (faviconEl) faviconEl.href = iconDataUrl;
+    var appleIconEl = document.getElementById('pwaAppleIcon'); if (appleIconEl) appleIconEl.href = iconDataUrl;
+    var manifest = {name:'Tegelwippen',short_name:'Tegelwippen',description:'Beplantingsadvies voor het vervangen van tegels door groen in voor- en achtertuin.',start_url:'.',scope:'.',display:'standalone',orientation:'portrait',background_color:'#1c1410',theme_color:'#3d6b2c',
+      icons:[{src:iconDataUrl,sizes:'192x192',type:'image/svg+xml',purpose:'any'},{src:iconDataUrl,sizes:'512x512',type:'image/svg+xml',purpose:'any'},{src:iconDataUrl,sizes:'512x512',type:'image/svg+xml',purpose:'maskable'}]};
+    var manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+    var manifestEl = document.getElementById('pwaManifestLink'); if (manifestEl) manifestEl.href = URL.createObjectURL(manifestBlob);
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+      var swCode = "const CACHE='tegelwippen-cache-v1';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('activate',e=>{self.clients.claim();});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.open(CACHE).then(cache=>cache.match(e.request).then(cached=>{const netFetch=fetch(e.request).then(resp=>{if(resp&&resp.ok)cache.put(e.request,resp.clone());return resp;}).catch(()=>cached);return cached||netFetch;})));});";
+      var swUrl = URL.createObjectURL(new Blob([swCode], { type: 'application/javascript' }));
+      navigator.serviceWorker.register(swUrl).catch(function(e){console.error('SW fout:',e);});
+    }
+  } catch (e) { console.error('PWA-setup fout:', e); }
+})();
+</script>
+
+<div class="header">
+  <div class="header-title">Tegel<span>wippen</span></div>
+  <div class="header-right">
+    <div class="proj-badge" id="projLabel">-</div>
+    <button class="lang-btn" onclick="wisselTaal()" id="langBtn">IT</button>
+  </div>
+</div>
+<div class="tabs">
+  <button class="tab active" onclick="toonScherm('start')">&#9881;<br><span data-i18n="tabs.start">Start</span></button>
+  <button class="tab" onclick="toonScherm('kaart')">&#128506;<br><span data-i18n="tabs.kaart">Kaart</span></button>
+  <button class="tab" onclick="toonScherm('fotos')">&#128247;<br><span data-i18n="tabs.fotos">Foto's</span></button>
+  <button class="tab" onclick="toonScherm('filters')">&#9989;<br><span data-i18n="tabs.filters">Filters</span></button>
+  <button class="tab" onclick="toonScherm('voorstel')">&#127807;<br><span data-i18n="tabs.voorstel">Voorstel</span></button>
+  <button class="tab" onclick="toonScherm('export')">&#8599;<br><span data-i18n="tabs.export">Export</span></button>
+</div>
+
+<!-- START -->
+<div id="scherm-start" class="screen active">
+  <div class="card" style="background:#12200f;border-color:var(--groen)">
+    <div class="label" style="color:#a8d4a0" data-i18n="start.waaromTitel">&#127793; Waarom tegelwippen?</div>
+    <div style="font-size:.7rem;color:#a8d4a0;line-height:1.7" data-i18n="start.waaromTekst">Elke tegel die plaatsmaakt voor groen helpt de biodiversiteit, verkoelt de tuin op hete dagen en laat regenwater weer de grond in zakken in plaats van de riolering te overbelasten. Deze app helpt je stap voor stap naar een concrete, haalbare plantkeuze.</div>
+  </div>
+  <div class="card">
+    <div class="label" data-i18n="start.projectnaam">&#127807; Projectnaam</div>
+    <input type="text" class="inp" id="projNaam" data-i18n-ph="start.projectnaamPh" placeholder="bijv. Voortuin randje langs de stoep">
+    <div class="label" data-i18n="start.datum">Datum</div>
+    <input type="date" class="inp" id="datumInput">
+    <div class="label" data-i18n="start.afmetingen">Afmetingen van het vak (breedte x diepte, meter)</div>
+    <div style="display:flex;gap:8px">
+      <input type="number" step="0.1" class="inp" id="breedteInp" data-i18n-ph="start.breedtePh" placeholder="Breedte m">
+      <input type="number" step="0.1" class="inp" id="diepteInp" data-i18n-ph="start.dieptePh" placeholder="Diepte m">
+    </div>
+    <div class="label" data-i18n="start.typeLabel">&#127968; Type tuin</div>
+    <div class="chip-row"><button class="chip actief" data-w="voortuin" onclick="kiesSingleChip(this,'type')"><span data-i18n="chip.voortuin">Voortuin</span></button><button class="chip" data-w="achtertuin" onclick="kiesSingleChip(this,'type')"><span data-i18n="chip.achtertuin">Achtertuin</span></button></div>
+    <div class="label" data-i18n="start.windLabel">&#128168; Windgevoeligheid</div>
+    <div class="chip-row"><button class="chip" data-w="beschut" onclick="kiesSingleChip(this,'wind')"><span data-i18n="chip.beschut">Beschut/windluw</span></button><button class="chip actief" data-w="onbekend" onclick="kiesSingleChip(this,'wind')"><span data-i18n="chip.windOnbekend">Weet ik niet — adviseer</span></button><button class="chip" data-w="winderig" onclick="kiesSingleChip(this,'wind')"><span data-i18n="chip.winderig">Winderig/open</span></button></div>
+    <div class="label" data-i18n="start.windrichtingLabel">&#129472; Windrichting / ligging</div>
+    <div class="chip-row" id="windrichtingChips">
+      <button class="chip" data-w="noord" onclick="kiesMultiChip(this,'windrichting')"><span data-i18n="chip.noord">Noord</span></button>
+      <button class="chip" data-w="oost" onclick="kiesMultiChip(this,'windrichting')"><span data-i18n="chip.oost">Oost</span></button>
+      <button class="chip" data-w="zuid" onclick="kiesMultiChip(this,'windrichting')"><span data-i18n="chip.zuid">Zuid</span></button>
+      <button class="chip" data-w="west" onclick="kiesMultiChip(this,'windrichting')"><span data-i18n="chip.west">West</span></button>
+    </div>
+  </div>
+  <button class="btn btn-primair" onclick="startProject()" data-i18n="start.startBtn">&#9654; Start nieuw project</button>
+  <hr class="divider">
+  <div class="sectie-titel" data-i18n="start.werkwijzeTitel">Werkwijze</div>
+  <div class="card" style="background:#1c1410;border-color:var(--lijn)">
+    <div data-i18n="start.werkwijzeTekst">
+      <strong>1. Start</strong> &#8594; afmetingen, type tuin, windrichting<br>
+      <strong>2. Kaart</strong> &#8594; GPS, klimaatzone, omtrek intekenen<br>
+      <strong>3. Foto's</strong> &#8594; huidige situatie + inspiratie uploaden<br>
+      <strong>4. Filters</strong> &#8594; wensen aanvinken<br>
+      <strong>5. Voorstel</strong> &#8594; offline shortlist + beplantingsschema + AI-verfijning met foto's<br>
+      <strong>6. Export</strong> &#8594; CSV, tekst en PDF met kaart
+    </div>
+  </div>
+</div>
+
+<!-- KAART -->
+<div id="scherm-kaart" class="screen">
+  <div class="gps-row" style="margin-bottom:10px">
+    <div class="gps-display" id="gpsDisplay" data-i18n="kaart.gpsNietbepaald">Nog niet bepaald</div>
+    <button class="btn btn-gps" id="gpsKnop" onclick="bepaalGPS()">&#128205; GPS</button>
+  </div>
+  <div id="klimaatInfo"></div>
+  <div class="kaart-controls">
+    <button class="btn btn-klein" onclick="wisselTegel()" id="tegelBtn"><span data-i18n="kaart.satelliet">&#128752; Satelliet</span></button>
+    <button class="btn btn-klein" onclick="startTekenen()" id="tekenBtn"><span data-i18n="kaart.tekenen">&#9999;&#65039; Teken omtrek</span></button>
+    <button class="btn btn-klein" onclick="wisPolygon()"><span data-i18n="kaart.wis">&#8617; Wis</span></button>
+  </div>
+  <div id="kaartContainer"><div class="kaart-geen" data-i18n="kaart.bepaalEerstGps">&#128506;<br>Bepaal eerst je GPS-locatie</div></div>
+  <div class="oppervlak-bar">
+    <div><div class="oppervlak-getal" id="oppervlakGetal">0</div><div class="oppervlak-lbl" data-i18n="kaart.oppervlakLbl">m&#178; oppervlak</div></div>
+    <div style="text-align:right"><div class="oppervlak-getal" id="puntenGetal">0</div><div class="oppervlak-lbl" data-i18n="kaart.puntenLbl">hoekpunten</div></div>
+  </div>
+  <div class="stap-hint" data-i18n="kaart.hint">Tik "Teken omtrek" en tik daarna punten op de kaart om de rand van het te vergroenen vak te volgen. Tik nogmaals om af te ronden. Satellietbeeld helpt om schaduw van bomen en gebouwen in te schatten.</div>
+</div>
+
+<!-- FOTO'S -->
+<div id="scherm-fotos" class="screen">
+  <div class="sectie-titel" data-i18n="fotos.huidigeTitel">Huidige situatie</div>
+  <div class="foto-zone" onclick="document.getElementById('huidigeInput').click()">
+    <span data-i18n="fotos.huidigeZone">&#128247; Tik om foto's van de huidige situatie (tegels) te uploaden</span><br><span style="font-size:.6rem;color:#a3826a" data-i18n="fotos.max4">max 4 foto's</span>
+  </div>
+  <input type="file" id="huidigeInput" accept="image/*" multiple style="display:none" onchange="verwerkFotos(event,'huidige')">
+  <div class="foto-grid" id="huidigeGrid"></div>
+  <hr class="divider">
+  <div class="sectie-titel" data-i18n="fotos.inspiratieTitel">Inspiratie</div>
+  <div class="foto-zone" onclick="document.getElementById('inspiratieInput').click()">
+    <span data-i18n="fotos.inspiratieZone">&#127912; Tik om inspiratiefoto's toe te voegen</span><br><span style="font-size:.6rem;color:#a3826a" data-i18n="fotos.max4">max 4 foto's</span>
+  </div>
+  <input type="file" id="inspiratieInput" accept="image/*" multiple style="display:none" onchange="verwerkFotos(event,'inspiratie')">
+  <div class="foto-grid" id="inspiratieGrid"></div>
+</div>
+
+<!-- FILTERS -->
+<div id="scherm-filters" class="screen">
+  <div class="label" data-i18n="filters.prioriteitLabel">&#9878;&#65039; Prioriteit</div>
+  <div class="chip-row"><button class="chip actief" data-w="beide" onclick="kiesSingleChip(this,'prioriteit')"><span data-i18n="chip.beide">Beide even belangrijk</span></button><button class="chip" data-w="planten" onclick="kiesSingleChip(this,'prioriteit')"><span data-i18n="chip.planten">Planten centraal</span></button><button class="chip" data-w="verblijven" onclick="kiesSingleChip(this,'prioriteit')"><span data-i18n="chip.verblijven">Zitten/ontspannen centraal</span></button></div>
+  <div class="label" data-i18n="filters.soortWensLabel">&#127807; Gewenste soorten</div>
+  <div class="chip-row" id="soortWensChips">
+    <button class="chip" data-w="kruiden" onclick="kiesMultiChip(this,'soortWens')"><span data-i18n="chip.kruiden">Kruiden</span></button>
+    <button class="chip" data-w="groenten" onclick="kiesMultiChip(this,'soortWens')"><span data-i18n="chip.groenten">Groenten</span></button>
+    <button class="chip" data-w="sierplanten" onclick="kiesMultiChip(this,'soortWens')"><span data-i18n="chip.sierplanten">Sierplanten/bloemen</span></button>
+    <button class="chip" data-w="structuurgroen" onclick="kiesMultiChip(this,'soortWens')"><span data-i18n="chip.structuurgroen">Structuurgroen/privacy</span></button>
+    <button class="chip" data-w="klimplanten" onclick="kiesMultiChip(this,'soortWens')"><span data-i18n="chip.klimplanten">Klimplanten</span></button>
+  </div>
+  <div class="label" data-i18n="filters.klimSteunLabel">&#129497; Klimplanten &mdash; beschikbare steun</div>
+  <div class="stap-hint" data-i18n="filters.klimSteunHint">Zelfhechtende klimplanten (bv. klimop, klimhortensia) klimmen zelfstandig tegen een muur op. Andere klimplanten (bv. clematis, kamperfoelie) hebben een rek, draad of pergola nodig om te kunnen klimmen.</div>
+  <div class="chip-row" id="klimSteunChips">
+    <button class="chip" data-w="muur" onclick="kiesKlimSteun(this)"><span data-i18n="chip.klimMuur">Muur/schutting aanwezig</span></button>
+    <button class="chip" data-w="pergola" onclick="kiesKlimSteun(this)"><span data-i18n="chip.klimPergola">Pergola/latwerk/rek aanwezig</span></button>
+    <button class="chip" data-w="geen" onclick="kiesKlimSteun(this)"><span data-i18n="chip.klimGeen">Geen steun aanwezig</span></button>
+  </div>
+  <div class="label" data-i18n="filters.lichtLabel">&#9728;&#65039; Lichtconditie</div>
+  <div class="chip-row" id="lichtChips">
+    <button class="chip" data-w="zon" onclick="kiesMultiChip(this,'licht')"><span data-i18n="chip.zon">Volle zon</span></button>
+    <button class="chip" data-w="halfschaduw" onclick="kiesMultiChip(this,'licht')"><span data-i18n="chip.halfschaduw">Halfschaduw</span></button>
+    <button class="chip" data-w="schaduw" onclick="kiesMultiChip(this,'licht')"><span data-i18n="chip.schaduw">Schaduw</span></button>
+  </div>
+  <div class="label" data-i18n="filters.stijlLabel">&#127796; Stijl (optioneel, naast of i.p.v. kleur)</div>
+  <div class="chip-row" id="stijlChips">
+    <button class="chip actief" data-w="" onclick="kiesSingleChip(this,'stijl')"><span data-i18n="chip.stijlGeen">Klassiek/kleurthema</span></button>
+    <button class="chip" data-w="jungle" onclick="kiesSingleChip(this,'stijl')"><span data-i18n="chip.stijlJungle">Jungle/tropisch</span></button>
+    <button class="chip" data-w="mediterraan" onclick="kiesSingleChip(this,'stijl')"><span data-i18n="chip.stijlMediterraan">Mediterraan</span></button>
+    <button class="chip" data-w="prairie" onclick="kiesSingleChip(this,'stijl')"><span data-i18n="chip.stijlPrairie">Prairietuin</span></button>
+    <button class="chip" data-w="cottage" onclick="kiesSingleChip(this,'stijl')"><span data-i18n="chip.stijlCottage">Cottage garden</span></button>
+    <button class="chip" data-w="potten" onclick="kiesSingleChip(this,'stijl')"><span data-i18n="chip.stijlPotten">Potten &amp; bakken</span></button>
+    <button class="chip" data-w="eenjarig" onclick="kiesSingleChip(this,'stijl')"><span data-i18n="chip.stijlEenjarig">Eenjarige zomerbloeiers</span></button>
+  </div>
+  <div class="label" data-i18n="filters.kleurLabel">&#127801; Gewenste bloemkleur</div>
+  <div class="chip-row" id="kleurChips">
+    <button class="chip" data-w="wit" onclick="kiesMultiChip(this,'kleur')"><span data-i18n="chip.wit">Wit</span></button>
+    <button class="chip" data-w="geel" onclick="kiesMultiChip(this,'kleur')"><span data-i18n="chip.geel">Geel</span></button>
+    <button class="chip" data-w="oranje" onclick="kiesMultiChip(this,'kleur')"><span data-i18n="chip.oranje">Oranje</span></button>
+    <button class="chip" data-w="rood" onclick="kiesMultiChip(this,'kleur')"><span data-i18n="chip.rood">Rood</span></button>
+    <button class="chip" data-w="roze" onclick="kiesMultiChip(this,'kleur')"><span data-i18n="chip.roze">Roze</span></button>
+    <button class="chip" data-w="paars" onclick="kiesMultiChip(this,'kleur')"><span data-i18n="chip.paars">Paars</span></button>
+    <button class="chip" data-w="blauw" onclick="kiesMultiChip(this,'kleur')"><span data-i18n="chip.blauw">Blauw</span></button>
+  </div>
+  <div class="label" data-i18n="filters.onderhoudLabel">&#128736;&#65039; Onderhoud</div>
+  <div class="chip-row"><button class="chip actief" data-w="hoog" onclick="kiesSingleChip(this,'onderhoud')"><span data-i18n="chip.maaktNietUit">Maakt niet uit</span></button><button class="chip" data-w="gemiddeld" onclick="kiesSingleChip(this,'onderhoud')"><span data-i18n="chip.maxGemiddeld">Maximaal gemiddeld</span></button><button class="chip" data-w="laag" onclick="kiesSingleChip(this,'onderhoud')"><span data-i18n="chip.zoMinMogelijk">Zo min mogelijk</span></button></div>
+  <div class="label" data-i18n="filters.jaarrondLabel">&#127755; Jaarrond groen belangrijk?</div>
+  <div class="chip-row"><button class="chip" data-w="ja" onclick="kiesSingleChip(this,'jaarrond')"><span data-i18n="chip.jaarrondJa">Ja, ook 's winters groen</span></button><button class="chip actief" data-w="geen" onclick="kiesSingleChip(this,'jaarrond')"><span data-i18n="chip.geenVoorkeur">Geen voorkeur</span></button></div>
+  <div class="label" data-i18n="filters.extraLabel">Extra wensen (optioneel)</div>
+  <textarea class="inp" id="extraWensen" data-i18n-ph="filters.extraPh" placeholder="bijv. ook ruimte voor een pad, waterdoorlatende bestrating combineren met groen..." style="min-height:70px"></textarea>
+  <button class="btn btn-primair" onclick="slaFiltersOp()" style="margin-top:4px"><span data-i18n="filters.opslaanBtn">&#10003; Wensen opslaan</span></button>
+</div>
+
+<!-- VOORSTEL -->
+<div id="scherm-voorstel" class="screen">
+  <button class="btn btn-primair" onclick="genereerShortlist()"><span data-i18n="voorstel.genereerBtn">&#127807; Genereer shortlist</span></button>
+  <div id="shortlistSecties"></div>
+  <div id="plattegrondSectie"></div>
+  <hr class="divider">
+  <div class="card" style="border-color:#5a3f00;background:#2a1f00">
+    <div class="label" style="color:#e8c070" data-i18n="voorstel.aiLabel">&#129302; Verfijnen met AI (optioneel)</div>
+    <div class="stap-hint" data-i18n="voorstel.aiHint">1. Deel je foto's + prompt met een AI-app (of kopieer alleen de tekst)<br>2. Plak het antwoord hieronder terug</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <button class="btn btn-deel" onclick="deelFotosEnPrompt()"><span data-i18n="voorstel.deelBtn">&#8679; Deel foto's + prompt</span></button>
+      <button class="btn btn-deel" onclick="kopieerPromptAlleen()"><span data-i18n="voorstel.tekstBtn">&#128203; Alleen tekst</span></button>
+    </div>
+    <textarea class="inp" id="voorstelAntwoord" data-i18n-ph="voorstel.plakPh" placeholder="Plak hier het beplantingsvoorstel van de AI..." style="min-height:100px"></textarea>
+    <button class="btn btn-opslaan" onclick="slaVoorstelOp()"><span data-i18n="voorstel.opslaanBtn">&#10003; Voorstel opslaan</span></button>
+  </div>
+  <div id="voorstelWeergave"></div>
+</div>
+
+<!-- EXPORT -->
+<div id="scherm-export" class="screen">
+  <div class="export-card">
+    <div style="font-size:2rem;margin-bottom:8px">&#128196;</div>
+    <div class="sectie-titel" data-i18n="export.pdfTitel">PDF &mdash; compleet rapport</div>
+    <div class="export-desc" data-i18n="export.pdfDesc">Bevat de kaart met omtrek, projectgegevens, shortlist en (indien opgeslagen) het AI-voorstel.</div>
+    <button class="btn btn-pdf" onclick="genereerPDF()"><span data-i18n="export.pdfBtn">&#128196; Genereer PDF-rapport</span></button>
+  </div>
+  <div class="export-card">
+    <div style="font-size:2rem;margin-bottom:8px">&#128196;</div>
+    <div class="sectie-titel" data-i18n="export.csvTitel">CSV &mdash; shortlist</div>
+    <div class="export-desc" data-i18n="export.csvDesc">Plantnaam, licht, kleur, onderhoud, windbestendigheid, bijvriendelijkheid, zelfhechtend (klimplanten).</div>
+    <button class="btn btn-primair" onclick="exporteerCSV()"><span data-i18n="export.csvBtn">&#8595; Download CSV</span></button>
+  </div>
+  <div class="export-card">
+    <div style="font-size:2rem;margin-bottom:8px">&#128221;</div>
+    <div class="sectie-titel" data-i18n="export.txtTitel">Tekst &mdash; voorstel</div>
+    <div class="export-desc" data-i18n="export.txtDesc">Het AI-beplantingsvoorstel als tekstbestand.</div>
+    <button class="btn btn-primair" onclick="exporteerVoorstel()"><span data-i18n="export.txtBtn">&#8595; Download voorstel.txt</span></button>
+  </div>
+  <hr class="divider">
+  <div class="card"><div class="label" data-i18n="export.projectLabel">Huidig project</div><div id="projArchief" style="font-size:.72rem;color:#a3826a">Laden...</div></div>
+  <button class="btn btn-klein btn-gevaar" onclick="verwijderProject()" style="width:100%;margin-top:8px"><span data-i18n="export.wisBtn">&#10005; Project wissen</span></button>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+var TUIN_SIERPLANTEN = [
+{naam:'Vlinderstruik (Buddleja)',licht:['zon'],kleur:['paars','roze','wit'],onderhoud:'gemiddeld',windbestendig:true,jaarrond:false,stijl:[],bij:true},
+{naam:'Lavendel',licht:['zon'],kleur:['paars','blauw'],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['mediterraan','prairie'],bij:true},
+{naam:'Kattenkruid (Nepeta)',licht:['zon'],kleur:['paars','blauw'],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['prairie','cottage'],bij:true},
+{naam:'Vaste salie (Salvia nemorosa)',licht:['zon'],kleur:['paars','blauw','roze'],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['prairie','mediterraan'],bij:true},
+{naam:'Zonnehoed (Echinacea)',licht:['zon'],kleur:['roze','paars','wit'],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['prairie'],bij:true},
+{naam:'Sierui (Allium)',licht:['zon'],kleur:['paars','roze'],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['prairie','cottage'],bij:true},
+{naam:'IJzerhard (Verbena bonariensis)',licht:['zon'],kleur:['paars'],onderhoud:'laag',windbestendig:false,jaarrond:false,stijl:['prairie','cottage'],bij:true},
+{naam:'Siergras (Pennisetum/Stipa)',licht:['zon'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['prairie']},
+{naam:'Herfstsedum (bodembedekker)',licht:['zon'],kleur:['roze'],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['prairie'],bij:true},
+{naam:'Struikroos (bodembedekkend)',licht:['zon'],kleur:['rood','roze','wit','geel'],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:['cottage']},
+{naam:'Vlambloem (Phlox paniculata)',licht:['zon','halfschaduw'],kleur:['roze','wit','paars'],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:['cottage'],bij:true},
+{naam:'Ridderspoor (Delphinium)',licht:['zon'],kleur:['blauw','paars','wit'],onderhoud:'hoog',windbestendig:false,jaarrond:false,stijl:['cottage']},
+{naam:'Lupine',licht:['zon'],kleur:['paars','roze','blauw','geel'],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:['cottage'],bij:true},
+{naam:'Margriet (Leucanthemum)',licht:['zon'],kleur:['wit'],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['cottage','prairie'],bij:true},
+{naam:'Hortensia',licht:['halfschaduw'],kleur:['roze','blauw','wit','paars'],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:['cottage']},
+{naam:'Bolvormige buxus',licht:['zon','halfschaduw'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['potten']},
+{naam:'Taxus (haag of bolvorm)',licht:['zon','schaduw'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:[]},
+{naam:'Hosta (schaduwbodembedekker)',licht:['halfschaduw','schaduw'],kleur:['wit','paars'],onderhoud:'laag',windbestendig:false,jaarrond:false,stijl:['jungle']},
+{naam:'Varens',licht:['schaduw'],kleur:[],onderhoud:'laag',windbestendig:false,jaarrond:true,stijl:['jungle']},
+{naam:'Klimop (bodembedekker/privacy)',licht:['schaduw','halfschaduw'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['jungle']},
+{naam:'Bamboe (niet-woekerend, in pot)',licht:['zon','halfschaduw'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['jungle','potten']},
+{naam:'Vingerplant (Fatsia japonica)',licht:['halfschaduw','schaduw'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['jungle']},
+{naam:'Bananenplant (Musa basjoo)',licht:['zon','halfschaduw'],kleur:[],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:['jungle','potten']},
+{naam:'Kentiapalm (pot, zomer buiten)',licht:['halfschaduw'],kleur:[],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:['jungle','potten']},
+{naam:'Olijfboompje (pot)',licht:['zon'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['mediterraan','potten']},
+{naam:'Oleander (pot)',licht:['zon'],kleur:['rood','roze','wit'],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['mediterraan','potten']},
+{naam:'Bougainvillea (pot)',licht:['zon'],kleur:['roze','paars','rood'],onderhoud:'gemiddeld',windbestendig:true,jaarrond:false,stijl:['mediterraan','potten']},
+{naam:'Citrusboompje (pot)',licht:['zon'],kleur:['wit'],onderhoud:'hoog',windbestendig:false,jaarrond:false,stijl:['mediterraan','potten']},
+{naam:'Agave (pot)',licht:['zon'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['prairie','potten']},
+{naam:'Winterharde cactus (Opuntia)',licht:['zon'],kleur:['geel'],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['prairie']},
+{naam:'Echeveria (vetplant, pot)',licht:['zon'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['potten']},
+{naam:'Aloë vera (pot)',licht:['zon'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['potten']},
+{naam:'Siergras Carex',licht:['schaduw','halfschaduw'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:[]},
+{naam:'Pampasgras (compacte variëteit)',licht:['zon'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['prairie']},
+{naam:'Ooievaarsbek (Geranium, bodembedekker)',licht:['zon','halfschaduw'],kleur:['roze','paars','wit','blauw'],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['cottage'],bij:true},
+{naam:'Zonnebloem',licht:['zon'],kleur:['geel','oranje'],onderhoud:'laag',windbestendig:false,jaarrond:false,stijl:['eenjarig'],bij:true},
+{naam:'Cosmos',licht:['zon'],kleur:['roze','wit','paars'],onderhoud:'laag',windbestendig:false,jaarrond:false,stijl:['eenjarig'],bij:true},
+{naam:'Afrikaantje (Tagetes)',licht:['zon'],kleur:['geel','oranje'],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['eenjarig']},
+{naam:'Zinnia',licht:['zon'],kleur:['rood','roze','geel','oranje','wit'],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:['eenjarig'],bij:true},
+{naam:'Petunia (pot)',licht:['zon'],kleur:['paars','roze','wit','rood','blauw'],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:['eenjarig','potten']},
+{naam:'Geranium (Pelargonium, pot)',licht:['zon'],kleur:['rood','roze','wit','paars'],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['eenjarig','potten']}
+];
+var KRUIDEN_GROENTEN = [
+{naam:'Basilicum',licht:['zon'],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:['mediterraan'],bij:false},
+{naam:'Rozemarijn',licht:['zon'],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['mediterraan'],bij:true},
+{naam:'Tijm (ook als bodembedekker tussen stenen)',licht:['zon'],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['mediterraan','prairie'],bij:true},
+{naam:'Munt (afgeperkt planten i.v.m. woekeren)',licht:['zon','halfschaduw'],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:[],bij:true},
+{naam:'Bieslag',licht:['zon','halfschaduw'],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:[],bij:true},
+{naam:'Peterselie',licht:['zon','halfschaduw'],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:[]},
+{naam:'Salie (keukenkruid)',licht:['zon'],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['mediterraan'],bij:true},
+{naam:'Oregano',licht:['zon'],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['mediterraan'],bij:true},
+{naam:'Cherrytomaat',licht:['zon'],onderhoud:'hoog',windbestendig:false,jaarrond:false,stijl:['mediterraan']},
+{naam:'Paprika/chilipeper',licht:['zon'],onderhoud:'hoog',windbestendig:false,jaarrond:false,stijl:['mediterraan']},
+{naam:'Sla',licht:['zon','halfschaduw'],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:[]},
+{naam:'Aardbei (bodembedekker)',licht:['zon'],onderhoud:'gemiddeld',windbestendig:true,jaarrond:false,stijl:[]},
+{naam:'Radijs',licht:['zon'],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:[]},
+{naam:'Courgette (grote pot of border)',licht:['zon'],onderhoud:'hoog',windbestendig:false,jaarrond:false,stijl:['mediterraan']}
+];
+var KLIMPLANTEN = [
+{naam:'Klimop (Hedera helix)',licht:['schaduw','halfschaduw'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:['jungle'],bij:true,zelfhechtend:true},
+{naam:'Klimhortensia (Hydrangea petiolaris)',licht:['halfschaduw','schaduw'],kleur:['wit'],onderhoud:'laag',windbestendig:false,jaarrond:false,stijl:['cottage'],bij:true,zelfhechtend:true},
+{naam:'Wilde wingerd (Parthenocissus)',licht:['zon','halfschaduw'],kleur:[],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['jungle'],bij:false,zelfhechtend:true},
+{naam:'Klimtrompetbloem (Campsis)',licht:['zon'],kleur:['rood','oranje'],onderhoud:'gemiddeld',windbestendig:true,jaarrond:false,stijl:[],bij:true,zelfhechtend:true},
+{naam:'Winterjasmijn (Jasminum nudiflorum)',licht:['zon','halfschaduw'],kleur:['geel'],onderhoud:'laag',windbestendig:true,jaarrond:true,stijl:[],bij:false,zelfhechtend:false},
+{naam:'Clematis',licht:['zon','halfschaduw'],kleur:['paars','roze','wit','blauw'],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:['cottage'],bij:true,zelfhechtend:false},
+{naam:'Kamperfoelie (Lonicera)',licht:['zon','halfschaduw'],kleur:['geel','roze'],onderhoud:'laag',windbestendig:true,jaarrond:false,stijl:['cottage'],bij:true,zelfhechtend:false},
+{naam:'Blauweregen (Wisteria)',licht:['zon'],kleur:['paars'],onderhoud:'hoog',windbestendig:true,jaarrond:false,stijl:[],bij:true,zelfhechtend:false},
+{naam:'Klimroos',licht:['zon'],kleur:['rood','roze','wit','geel'],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:['cottage'],bij:true,zelfhechtend:false},
+{naam:'Winterharde passiebloem (Passiflora)',licht:['zon'],kleur:['paars','wit'],onderhoud:'gemiddeld',windbestendig:false,jaarrond:false,stijl:['jungle'],bij:true,zelfhechtend:false},
+{naam:'Sierkiwi (Actinidia)',licht:['zon','halfschaduw'],kleur:[],onderhoud:'gemiddeld',windbestendig:true,jaarrond:false,stijl:['jungle'],bij:true,zelfhechtend:false},
+{naam:'Pronkboon (eenjarig)',licht:['zon'],kleur:['rood','wit'],onderhoud:'laag',windbestendig:false,jaarrond:false,stijl:['eenjarig'],bij:true,zelfhechtend:false},
+{naam:'Ipomoea (eenjarige klimmer)',licht:['zon'],kleur:['paars','blauw','roze'],onderhoud:'laag',windbestendig:false,jaarrond:false,stijl:['eenjarig'],bij:true,zelfhechtend:false}
+];
+
+var TR = {
+  nl: {
+    tabs:{start:'Start',kaart:'Kaart',fotos:"Foto's",filters:'Filters',voorstel:'Voorstel',export:'Export'},
+    start:{waaromTitel:'&#127793; Waarom tegelwippen?',waaromTekst:'Elke tegel die plaatsmaakt voor groen helpt de biodiversiteit, verkoelt de tuin op hete dagen en laat regenwater weer de grond in zakken in plaats van de riolering te overbelasten. Deze app helpt je stap voor stap naar een concrete, haalbare plantkeuze.',
+      projectnaam:'&#127807; Projectnaam',projectnaamPh:'bijv. Voortuin randje langs de stoep',datum:'Datum',afmetingen:'Afmetingen van het vak (breedte x diepte, meter)',breedtePh:'Breedte m',dieptePh:'Diepte m',
+      typeLabel:'&#127968; Type tuin',windLabel:'&#128168; Windgevoeligheid',windrichtingLabel:'&#129472; Windrichting / ligging',startBtn:'&#9654; Start nieuw project',
+      werkwijzeTitel:'Werkwijze',werkwijzeTekst:'<strong>1. Start</strong> &#8594; afmetingen, type tuin, windrichting<br><strong>2. Kaart</strong> &#8594; GPS, klimaatzone, omtrek intekenen<br><strong>3. Foto\'s</strong> &#8594; huidige situatie + inspiratie uploaden<br><strong>4. Filters</strong> &#8594; wensen aanvinken<br><strong>5. Voorstel</strong> &#8594; offline shortlist + beplantingsschema + AI-verfijning met foto\'s<br><strong>6. Export</strong> &#8594; CSV, tekst en PDF met kaart'},
+    kaart:{gpsNietbepaald:'Nog niet bepaald',satelliet:'&#128752; Satelliet',tekenen:'&#9999;&#65039; Teken omtrek',wis:'&#8617; Wis',bepaalEerstGps:'&#128506;<br>Bepaal eerst je GPS-locatie',oppervlakLbl:'m&#178; oppervlak',puntenLbl:'hoekpunten',
+      hint:'Tik "Teken omtrek" en tik daarna punten op de kaart om de rand van het te vergroenen vak te volgen. Tik nogmaals om af te ronden. Satellietbeeld helpt om schaduw van bomen en gebouwen in te schatten.',
+      klimaatBenelux:'Benelux — gematigd zeeklimaat',klimaatNoordIt:'Noord-Italië / Alpenrand — continentaal, koudere winters',klimaatMiddenIt:'Midden-Italië — gematigd mediterraan',klimaatZuidIt:'Zuid-Italië / eilanden — warm mediterraan',klimaatOnbekend:'Klimaatzone niet herkend — vul zelf aan'},
+    fotos:{huidigeTitel:'Huidige situatie',huidigeZone:"&#128247; Tik om foto's van de huidige situatie (tegels) te uploaden",max4:"max 4 foto's",inspiratieTitel:'Inspiratie',inspiratieZone:"&#127912; Tik om inspiratiefoto's toe te voegen"},
+    filters:{prioriteitLabel:'&#9878;&#65039; Prioriteit',soortWensLabel:'&#127807; Gewenste soorten',klimSteunLabel:'&#129497; Klimplanten &mdash; beschikbare steun',klimSteunHint:'Zelfhechtende klimplanten (bv. klimop, klimhortensia) klimmen zelfstandig tegen een muur op. Andere klimplanten (bv. clematis, kamperfoelie) hebben een rek, draad of pergola nodig om te kunnen klimmen.',lichtLabel:'&#9728;&#65039; Lichtconditie',kleurLabel:'&#127801; Gewenste bloemkleur',stijlLabel:'&#127796; Stijl (optioneel, naast of i.p.v. kleur)',onderhoudLabel:'&#128736;&#65039; Onderhoud',jaarrondLabel:'&#127755; Jaarrond groen belangrijk?',extraLabel:'Extra wensen (optioneel)',extraPh:'bijv. ook ruimte voor een pad, waterdoorlatende bestrating combineren met groen...',opslaanBtn:'&#10003; Wensen opslaan'},
+    chip:{voortuin:'Voortuin',achtertuin:'Achtertuin',beschut:'Beschut/windluw',windOnbekend:'Weet ik niet — adviseer',winderig:'Winderig/open',
+      noord:'Noord',oost:'Oost',zuid:'Zuid',west:'West',beide:'Beide even belangrijk',planten:'Planten centraal',verblijven:'Zitten/ontspannen centraal',
+      kruiden:'Kruiden',groenten:'Groenten',sierplanten:'Sierplanten/bloemen',structuurgroen:'Structuurgroen/privacy',klimplanten:'Klimplanten',zon:'Volle zon',halfschaduw:'Halfschaduw',schaduw:'Schaduw',
+      klimMuur:'Muur/schutting aanwezig',klimPergola:'Pergola/latwerk/rek aanwezig',klimGeen:'Geen steun aanwezig',
+      wit:'Wit',geel:'Geel',oranje:'Oranje',rood:'Rood',roze:'Roze',paars:'Paars',blauw:'Blauw',maaktNietUit:'Maakt niet uit',maxGemiddeld:'Maximaal gemiddeld',zoMinMogelijk:'Zo min mogelijk',
+      jaarrondJa:"Ja, ook 's winters groen",geenVoorkeur:'Geen voorkeur',
+      stijlGeen:'Klassiek/kleurthema',stijlJungle:'Jungle/tropisch',stijlMediterraan:'Mediterraan',stijlPrairie:'Prairietuin',stijlCottage:'Cottage garden',stijlPotten:'Potten &amp; bakken',stijlEenjarig:'Eenjarige zomerbloeiers'},
+    voorstel:{genereerBtn:'&#127807; Genereer snelle offline suggesties',aiLabel:'&#129302; Beste keuze: verfijnen met AI',aiHint:"De AI kiest zelf passende, sterke en makkelijke planten op basis van al je criteria — niet beperkt tot onderstaande offline suggesties.<br>1. Deel je foto's + prompt met een AI-app (of kopieer alleen de tekst)<br>2. Plak het antwoord hieronder terug",
+      deelBtn:"&#8679; Deel foto's + prompt",tekstBtn:'&#128203; Alleen tekst',plakPh:'Plak hier het beplantingsvoorstel van de AI...',opslaanBtn:'&#10003; Voorstel opslaan',
+      geenShortlist:'Nog geen offline suggesties gegenereerd — niet verplicht, de AI-stap hieronder werkt hier los van',sierSectie:'Sierplanten &amp; structuurgroen (offline, niet uitputtend)',kruidenSectie:'Kruiden &amp; groenten (offline, niet uitputtend)',klimSectie:'Klimplanten (offline, niet uitputtend)',opgeslagenTitel:'&#128221; Opgeslagen voorstel',
+      plattegrondTitel:'&#128506; Conceptueel beplantingsschema',plattegrondHint:'Illustratief — geen exacte maatvoering. De herhaaleenheid (1 m&#178;) laat zien hoe je de gekozen planten kunt afwisselen; dit patroon wordt daarna over het hele vak herhaald. Voor een schets op maat: vraag dit mee in de AI-prompt hierboven.',
+      eenheidLabel:'herhaaleenheid',klimHint:'&#129497; Plaats deze klimplanten bij de aanwezige muur, schutting of pergola, los van het grondpatroon hierboven:'},
+    export:{pdfTitel:'PDF &mdash; compleet rapport',pdfDesc:'Bevat de kaart met omtrek, projectgegevens, shortlist en (indien opgeslagen) het AI-voorstel.',pdfBtn:'&#128196; Genereer PDF-rapport',
+      csvTitel:'CSV &mdash; shortlist',csvDesc:'Plantnaam, licht, kleur, onderhoud, windbestendigheid, bijvriendelijkheid, zelfhechtend (klimplanten).',csvBtn:'&#8595; Download CSV',
+      txtTitel:'Tekst &mdash; voorstel',txtDesc:'Het AI-beplantingsvoorstel als tekstbestand.',txtBtn:'&#8595; Download voorstel.txt',
+      projectLabel:'Huidig project',wisBtn:'&#10005; Project wissen',geenProject:'Geen project actief'},
+    notif:{vulProjectnaam:'Vul een projectnaam in',projectGestart:'Project gestart',gpsZoeken:'Zoeken...',gpsBepaald:'GPS bepaald \u2713',gpsMislukt:'GPS mislukt',gpsGeweigerd:'Toestemming geweigerd',gpsGeenSignaal:'Signaal niet gevonden',gpsTimeout:'Time-out',gpsNvt:'GPS niet beschikbaar',
+      wachtKaart:'Wacht tot de kaart geladen is',tikPunten:'Tik punten op de kaart om de omtrek te volgen',omtrekVastgelegd:'Omtrek vastgelegd \u2713',omtrekGewist:'Omtrek gewist',
+      maxFotos:"Maximaal 4 foto's per categorie",fotosToegevoegd:"Foto's toegevoegd \u2713",shortlistGegenereerd:'Shortlist gegenereerd \u2713',
+      promptGekopieerd:'Prompt gekopieerd \u2713',kopieerHandmatig:'Kopieer handmatig',geenFotosDeel:'Nog geen foto\'s geupload — gebruik "Alleen tekst"',delenMislukt:'Delen mislukt',delenNietOndersteund:"Delen met foto's niet ondersteund — tekst gekopieerd, download foto's handmatig",
+      plakEerstAntwoord:'Plak eerst het AI-antwoord',voorstelOpgeslagen:'Voorstel opgeslagen \u2713',genereerEerstShortlist:'Genereer eerst een shortlist',csvGedownload:'CSV gedownload \u2713',geenVoorstelOpgeslagen:'Nog geen voorstel opgeslagen',voorstelGedownload:'Voorstel gedownload \u2713',
+      opslaanMislukt:"Opslaan mislukt — mogelijk te veel/grote foto's",confirmWis:'Huidig project wissen? Exporteer eerst!',projectGewist:'Project gewist',pdfGeneren:'PDF wordt voorbereid...',popupGeblokkeerd:'Pop-up geblokkeerd — sta pop-ups toe',filtersOpgeslagen:'Wensen opgeslagen \u2713'}
+  },
+  it: {
+    tabs:{start:'Inizio',kaart:'Mappa',fotos:'Foto',filters:'Filtri',voorstel:'Proposta',export:'Esporta'},
+    start:{waaromTitel:'&#127793; Perché togliere le piastrelle?',waaromTekst:"Ogni piastrella sostituita dal verde aiuta la biodiversità, rinfresca il giardino nelle giornate calde e permette all'acqua piovana di infiltrarsi nel terreno invece di sovraccaricare le fognature. Questa app ti guida passo passo verso una scelta di piante concreta e realizzabile.",
+      projectnaam:'&#127807; Nome progetto',projectnaamPh:'es. Bordo giardino anteriore lungo il marciapiede',datum:'Data',afmetingen:'Dimensioni dell\u2019area (larghezza x profondità, metri)',breedtePh:'Larghezza m',dieptePh:'Profondità m',
+      typeLabel:'&#127968; Tipo di giardino',windLabel:'&#128168; Esposizione al vento',windrichtingLabel:'&#129472; Orientamento',startBtn:'&#9654; Avvia nuovo progetto',
+      werkwijzeTitel:'Come funziona',werkwijzeTekst:'<strong>1. Inizio</strong> &#8594; dimensioni, tipo di giardino, orientamento<br><strong>2. Mappa</strong> &#8594; GPS, zona climatica, disegna il contorno<br><strong>3. Foto</strong> &#8594; carica situazione attuale + ispirazione<br><strong>4. Filtri</strong> &#8594; seleziona le preferenze<br><strong>5. Proposta</strong> &#8594; shortlist offline + schema di impianto + rifinitura AI con foto<br><strong>6. Esporta</strong> &#8594; CSV, testo e PDF con mappa'},
+    kaart:{gpsNietbepaald:'Non ancora determinato',satelliet:'&#128752; Satellite',tekenen:'&#9999;&#65039; Disegna contorno',wis:'&#8617; Cancella',bepaalEerstGps:'&#128506;<br>Determina prima la posizione GPS',oppervlakLbl:'m&#178; superficie',puntenLbl:'punti angolari',
+      hint:'Tocca "Disegna contorno" e poi tocca i punti sulla mappa per seguire il bordo dell\'area da rinverdire. Tocca di nuovo per completare. La vista satellitare aiuta a stimare l\'ombra di alberi ed edifici.',
+      klimaatBenelux:'Benelux — clima oceanico temperato',klimaatNoordIt:'Nord Italia / arco alpino — continentale, inverni più freddi',klimaatMiddenIt:'Italia centrale — mediterraneo temperato',klimaatZuidIt:'Sud Italia / isole — mediterraneo caldo',klimaatOnbekend:'Zona climatica non riconosciuta — specifica tu stesso'},
+    fotos:{huidigeTitel:'Situazione attuale',huidigeZone:'&#128247; Tocca per caricare foto della situazione attuale (piastrelle)',max4:'massimo 4 foto',inspiratieTitel:'Ispirazione',inspiratieZone:'&#127912; Tocca per aggiungere foto di ispirazione'},
+    filters:{prioriteitLabel:'&#9878;&#65039; Priorità',soortWensLabel:'&#127807; Categorie desiderate',klimSteunLabel:'&#129497; Piante rampicanti &mdash; supporto disponibile',klimSteunHint:'Le rampicanti autoaggrappanti (es. edera, ortensia rampicante) si arrampicano da sole su un muro. Altre rampicanti (es. clematide, caprifoglio) hanno bisogno di un traliccio, fili o una pergola per arrampicarsi.',lichtLabel:'&#9728;&#65039; Condizione di luce',kleurLabel:'&#127801; Colore fiori desiderato',stijlLabel:'&#127796; Stile (opzionale, oltre o invece del colore)',onderhoudLabel:'&#128736;&#65039; Manutenzione',jaarrondLabel:'&#127755; Verde tutto l\'anno importante?',extraLabel:'Desideri extra (opzionale)',extraPh:'es. spazio per un vialetto, pavimentazione drenante combinata con il verde...',opslaanBtn:'&#10003; Salva preferenze'},
+    chip:{voortuin:'Giardino anteriore',achtertuin:'Giardino posteriore',beschut:'Riparato',windOnbekend:'Non lo so — consiglia tu',winderig:'Ventoso/esposto',
+      noord:'Nord',oost:'Est',zuid:'Sud',west:'Ovest',beide:'Entrambi ugualmente importanti',planten:'Piante centrali',verblijven:'Relax/seduta centrale',
+      kruiden:'Erbe aromatiche',groenten:'Verdure',sierplanten:'Piante ornamentali/fiori',structuurgroen:'Verde strutturale/privacy',klimplanten:'Piante rampicanti',zon:'Pieno sole',halfschaduw:'Mezz\'ombra',schaduw:'Ombra',
+      klimMuur:'Muro/recinzione presente',klimPergola:'Pergola/graticcio/traliccio presente',klimGeen:'Nessun supporto presente',
+      wit:'Bianco',geel:'Giallo',oranje:'Arancione',rood:'Rosso',roze:'Rosa',paars:'Viola',blauw:'Blu',maaktNietUit:'Non importa',maxGemiddeld:'Massimo media',zoMinMogelijk:'Il meno possibile',
+      jaarrondJa:"Sì, verde anche d'inverno",geenVoorkeur:'Nessuna preferenza',
+      stijlGeen:'Classico/tema colore',stijlJungle:'Jungle/tropicale',stijlMediterraan:'Mediterraneo',stijlPrairie:'Giardino prativo',stijlCottage:'Cottage garden',stijlPotten:'Vasi &amp; fioriere',stijlEenjarig:'Fiori annuali estivi'},
+    voorstel:{genereerBtn:'&#127807; Genera suggerimenti offline rapidi',aiLabel:'&#129302; Scelta migliore: rifinisci con AI',aiHint:"L'AI sceglie autonomamente piante robuste e facili in base a tutti i tuoi criteri — non limitata ai suggerimenti offline qui sotto.<br>1. Condividi le foto + prompt con un'app AI (o copia solo il testo)<br>2. Incolla la risposta qui sotto",
+      deelBtn:'&#8679; Condividi foto + prompt',tekstBtn:'&#128203; Solo testo',plakPh:"Incolla qui la proposta dell'AI per l'impianto...",opslaanBtn:'&#10003; Salva proposta',
+      geenShortlist:'Ancora nessun suggerimento offline generato — non obbligatorio, il passo AI qui sotto funziona comunque',sierSectie:'Piante ornamentali &amp; verde strutturale (offline, non esaustivo)',kruidenSectie:'Erbe &amp; verdure (offline, non esaustivo)',klimSectie:'Piante rampicanti (offline, non esaustivo)',opgeslagenTitel:'&#128221; Proposta salvata',
+      plattegrondTitel:'&#128506; Schema di impianto concettuale',plattegrondHint:"Illustrativo — non in scala esatta. L'unità ripetuta (1 m&#178;) mostra come alternare le piante scelte; questo motivo viene poi ripetuto su tutta l'area. Per uno schizzo su misura: richiedilo nel prompt AI qui sopra.",
+      eenheidLabel:'unità ripetuta',klimHint:'&#129497; Colloca queste rampicanti presso il muro, la recinzione o la pergola disponibile, separatamente dal motivo a terra qui sopra:'},
+    export:{pdfTitel:'PDF &mdash; rapporto completo',pdfDesc:'Contiene la mappa con il contorno, i dati del progetto, la shortlist e (se salvata) la proposta AI.',pdfBtn:'&#128196; Genera rapporto PDF',
+      csvTitel:'CSV &mdash; shortlist',csvDesc:'Nome pianta, luce, colore, manutenzione, resistenza al vento, favorevole agli impollinatori.',csvBtn:'&#8595; Scarica CSV',
+      txtTitel:'Testo &mdash; proposta',txtDesc:"La proposta AI per l'impianto come file di testo.",txtBtn:'&#8595; Scarica proposta.txt',
+      projectLabel:'Progetto attuale',wisBtn:'&#10005; Cancella progetto',geenProject:'Nessun progetto attivo'},
+    notif:{vulProjectnaam:'Inserisci un nome progetto',projectGestart:'Progetto avviato',gpsZoeken:'Ricerca...',gpsBepaald:'GPS determinato \u2713',gpsMislukt:'GPS fallito',gpsGeweigerd:'Permesso negato',gpsGeenSignaal:'Segnale non trovato',gpsTimeout:'Timeout',gpsNvt:'GPS non disponibile',
+      wachtKaart:'Attendi che la mappa si carichi',tikPunten:'Tocca i punti sulla mappa per seguire il contorno',omtrekVastgelegd:'Contorno registrato \u2713',omtrekGewist:'Contorno cancellato',
+      maxFotos:'Massimo 4 foto per categoria',fotosToegevoegd:'Foto aggiunte \u2713',shortlistGegenereerd:'Shortlist generata \u2713',
+      promptGekopieerd:'Prompt copiato \u2713',kopieerHandmatig:'Copia manualmente',geenFotosDeel:'Ancora nessuna foto caricata — usa "Solo testo"',delenMislukt:'Condivisione fallita',delenNietOndersteund:'Condivisione con foto non supportata — testo copiato, scarica le foto manualmente',
+      plakEerstAntwoord:"Incolla prima la risposta dell'AI",voorstelOpgeslagen:'Proposta salvata \u2713',genereerEerstShortlist:'Genera prima una shortlist',csvGedownload:'CSV scaricato \u2713',geenVoorstelOpgeslagen:'Ancora nessuna proposta salvata',voorstelGedownload:'Proposta scaricata \u2713',
+      opslaanMislukt:'Salvataggio fallito — forse troppe/grandi foto',confirmWis:'Cancellare il progetto attuale? Esporta prima!',projectGewist:'Progetto cancellato',pdfGeneren:'PDF in preparazione...',popupGeblokkeerd:'Popup bloccato — consenti i popup',filtersOpgeslagen:'Preferenze salvate \u2713'}
+  }
+};
+
+var state = {project:null, grens:[], oppervlak:0, tekenModus:false, klimaatzone:'',
+  fotosHuidig:[], fotosInspiratie:[],
+  filters:{prioriteit:'beide', soortWens:[], licht:[], kleur:[], stijl:'', onderhoud:'hoog', jaarrond:'geen', extra:'', type:'voortuin', wind:'onbekend', windrichting:[], klimSteun:[]},
+  shortlistSier:[], shortlistKruiden:[], shortlistKlimmers:[], voorstelTekst:'', lang:'nl'};
+
+function t(path){
+  var parts = path.split('.'); var obj = TR[state.lang];
+  for(var i=0;i<parts.length;i++){ if(!obj) return path; obj = obj[parts[i]]; }
+  return obj==null ? path : obj;
+}
+function toepassenTaal(){
+  document.documentElement.lang = state.lang;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){ el.innerHTML = t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){ el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph'))); });
+  document.getElementById('langBtn').textContent = state.lang==='nl' ? 'IT' : 'NL';
+  if(!state.project) document.getElementById('projLabel').textContent = '-';
+  renderKlimaatInfo();
+  renderShortlist();
+  updateExportArchief();
+}
+function wisselTaal(){
+  state.lang = state.lang==='nl' ? 'it' : 'nl';
+  try{ localStorage.setItem('tegelwippen_lang', state.lang); }catch(e){}
+  toepassenTaal();
+}
+
+window.addEventListener('load', function(){
+  document.getElementById('datumInput').value = new Date().toISOString().split('T')[0];
+  laadData();
+  try{ var sl = localStorage.getItem('tegelwippen_lang'); if(sl) state.lang = sl; }catch(e){}
+  toepassenTaal();
+});
+
+function toonScherm(naam){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('scherm-'+naam).classList.add('active');
+  var tabs = document.querySelectorAll('.tab');
+  ['start','kaart','fotos','filters','voorstel','export'].forEach(function(n,i){ if(n===naam) tabs[i].classList.add('active'); });
+  if(naam==='kaart') setTimeout(initKaart,100);
+  if(naam==='export') updateExportArchief();
+}
+
+function startProject(){
+  var naam = document.getElementById('projNaam').value.trim();
+  if(!naam){ toonNotif(t('notif.vulProjectnaam')); return; }
+  state.project = {id:Date.now(), naam:naam, datum:document.getElementById('datumInput').value,
+    breedte:document.getElementById('breedteInp').value, diepte:document.getElementById('diepteInp').value};
+  slaData();
+  document.getElementById('projLabel').textContent = naam.substring(0,16);
+  toonScherm('kaart'); toonNotif(t('notif.projectGestart'));
+}
+
+var kaartObj=null, osmLayer=null, satLayer=null, huidigeTegel='osm', polygonLayer=null, puntMarkers=[];
+function initKaart(){
+  var c = document.getElementById('kaartContainer');
+  if(kaartObj || typeof L==='undefined') return;
+  if(!state.project){ c.innerHTML = '<div class="kaart-geen">'+t('kaart.bepaalEerstGps')+'</div>'; return; }
+  c.innerHTML = '';
+  kaartObj = L.map(c,{zoomControl:true});
+  osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:20,attribution:'\u00a9 OpenStreetMap'});
+  satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,attribution:'\u00a9 Esri'});
+  osmLayer.addTo(kaartObj);
+  kaartObj.setView([46.0, 9.0], 5);
+  kaartObj.on('click', onKaartKlik);
+  if(state.grens.length) tekenPolygonUitState();
+  setTimeout(function(){ if(kaartObj) kaartObj.invalidateSize(); },200);
+}
+function wisselTegel(){
+  if(!kaartObj) return;
+  if(huidigeTegel==='osm'){ kaartObj.removeLayer(osmLayer); satLayer.addTo(kaartObj); huidigeTegel='sat'; }
+  else { kaartObj.removeLayer(satLayer); osmLayer.addTo(kaartObj); huidigeTegel='osm'; }
+}
+function classificeerKlimaatzone(lat){
+  if(lat>=49) return 'klimaatBenelux';
+  if(lat>=44) return 'klimaatNoordIt';
+  if(lat>=41) return 'klimaatMiddenIt';
+  if(lat>=30) return 'klimaatZuidIt';
+  return 'klimaatOnbekend';
+}
+function renderKlimaatInfo(){
+  var el = document.getElementById('klimaatInfo'); if(!el) return;
+  if(!state.klimaatzone){ el.innerHTML=''; return; }
+  el.innerHTML = '<div class="klimaat-info">&#127757; '+t('kaart.'+state.klimaatzone)+'</div>';
+}
+function bepaalGPS(){
+  var d=document.getElementById('gpsDisplay'), k=document.getElementById('gpsKnop');
+  d.textContent=t('notif.gpsZoeken'); d.style.color='#e8a020'; k.innerHTML='&#9203;'; k.disabled=true;
+  if(!navigator.geolocation){ d.textContent=t('notif.gpsNvt'); k.innerHTML='&#128205; GPS'; k.disabled=false; return; }
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat=pos.coords.latitude, lon=pos.coords.longitude;
+    d.textContent=lat.toFixed(5)+', '+lon.toFixed(5); d.style.color='#7dcf9a'; k.innerHTML='&#10003;'; k.disabled=false;
+    if(state.project){ state.project.gps = lat.toFixed(5)+', '+lon.toFixed(5); }
+    state.klimaatzone = classificeerKlimaatzone(lat);
+    renderKlimaatInfo();
+    slaData();
+    if(kaartObj){ kaartObj.setView([lat,lon], 19); }
+    toonNotif(t('notif.gpsBepaald'));
+  }, function(err){
+    d.style.color='#e87070'; k.innerHTML='&#128205; GPS'; k.disabled=false;
+    d.textContent = err.code===1?t('notif.gpsGeweigerd'):err.code===2?t('notif.gpsGeenSignaal'):t('notif.gpsTimeout');
+    toonNotif(t('notif.gpsMislukt'));
+  }, {enableHighAccuracy:true, timeout:10000, maximumAge:0});
+}
+function startTekenen(){
+  if(!kaartObj){ toonNotif(t('notif.wachtKaart')); return; }
+  state.tekenModus = !state.tekenModus;
+  document.getElementById('tekenBtn').classList.toggle('actief', state.tekenModus);
+  if(!state.tekenModus){ afrondenPolygon(); }
+  else { wisPolygon(true); toonNotif(t('notif.tikPunten')); }
+}
+function onKaartKlik(e){
+  if(!state.tekenModus) return;
+  state.grens.push({lat:e.latlng.lat, lng:e.latlng.lng});
+  var m = L.circleMarker(e.latlng, {radius:5, color:'#f0c9a0', fillColor:'#3d6b2c', fillOpacity:1}).addTo(kaartObj);
+  puntMarkers.push(m);
+  tekenPolygonUitState();
+  document.getElementById('puntenGetal').textContent = state.grens.length;
+}
+function tekenPolygonUitState(){
+  if(polygonLayer){ kaartObj.removeLayer(polygonLayer); polygonLayer=null; }
+  if(state.grens.length>=2){
+    var latlngs = state.grens.map(function(p){return [p.lat,p.lng];});
+    polygonLayer = L.polygon(latlngs, {color:'#c97b3d', fillColor:'#5a8a4a', fillOpacity:.3}).addTo(kaartObj);
+  }
+  berekenOppervlak();
+}
+function afrondenPolygon(){ berekenOppervlak(); if(state.grens.length>=3) toonNotif(t('notif.omtrekVastgelegd')); slaData(); }
+function berekenOppervlak(){
+  if(state.grens.length<3){ document.getElementById('oppervlakGetal').textContent='0'; return; }
+  var R = 6371000;
+  var latRef = state.grens[0].lat * Math.PI/180;
+  var pts = state.grens.map(function(p){ return { x: R*(p.lng*Math.PI/180)*Math.cos(latRef), y: R*(p.lat*Math.PI/180) }; });
+  var area=0;
+  for(var i=0;i<pts.length;i++){ var j=(i+1)%pts.length; area += pts[i].x*pts[j].y - pts[j].x*pts[i].y; }
+  area = Math.abs(area/2);
+  state.oppervlak = Math.round(area*10)/10;
+  document.getElementById('oppervlakGetal').textContent = state.oppervlak;
+  document.getElementById('puntenGetal').textContent = state.grens.length;
+}
+function wisPolygon(stil){
+  state.grens=[]; state.oppervlak=0;
+  puntMarkers.forEach(function(m){ if(kaartObj) kaartObj.removeLayer(m); }); puntMarkers=[];
+  if(polygonLayer && kaartObj){ kaartObj.removeLayer(polygonLayer); polygonLayer=null; }
+  document.getElementById('oppervlakGetal').textContent='0'; document.getElementById('puntenGetal').textContent='0';
+  slaData();
+  if(!stil) toonNotif(t('notif.omtrekGewist'));
+}
+
+function kiesMultiChip(el, groep){
+  var w = el.getAttribute('data-w');
+  var arr = state.filters[groep];
+  var idx = arr.indexOf(w);
+  if(idx===-1){ arr.push(w); el.classList.add('actief'); } else { arr.splice(idx,1); el.classList.remove('actief'); }
+}
+function kiesSingleChip(el, groep){
+  document.querySelectorAll('.chip[data-w]').forEach(function(c){ if(c.parentElement===el.parentElement) c.classList.remove('actief'); });
+  el.classList.add('actief'); state.filters[groep] = el.getAttribute('data-w');
+}
+function kiesKlimSteun(el){
+  var w = el.getAttribute('data-w');
+  var arr = state.filters.klimSteun;
+  var rij = el.parentElement;
+  if(w==='geen'){
+    state.filters.klimSteun = arr.indexOf('geen')!==-1 ? [] : ['geen'];
+    rij.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('actief'); });
+    if(state.filters.klimSteun.length) el.classList.add('actief');
+  } else {
+    var idx = arr.indexOf('geen');
+    if(idx!==-1){ arr.splice(idx,1); rij.querySelector('[data-w="geen"]').classList.remove('actief'); }
+    var wi = arr.indexOf(w);
+    if(wi===-1){ arr.push(w); el.classList.add('actief'); } else { arr.splice(wi,1); el.classList.remove('actief'); }
+  }
+}
+
+function verwerkFotos(event, soort){
+  var files = Array.from(event.target.files || []);
+  var arr = soort==='huidige' ? state.fotosHuidig : state.fotosInspiratie;
+  if(arr.length + files.length > 4){ toonNotif(t('notif.maxFotos')); files = files.slice(0, 4-arr.length); }
+  var verwerkt = 0;
+  if(!files.length) return;
+  files.forEach(function(file){
+    resizeAfbeelding(file, function(dataUrl){
+      arr.push(dataUrl); verwerkt++;
+      if(verwerkt===files.length){ slaData(); renderFotoGrids(); toonNotif(t('notif.fotosToegevoegd')); }
+    });
+  });
+  event.target.value = '';
+}
+function resizeAfbeelding(file, callback){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var maxW = 900; var scale = Math.min(1, maxW/img.width);
+      var c = document.createElement('canvas');
+      c.width = img.width*scale; c.height = img.height*scale;
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      callback(c.toDataURL('image/jpeg',0.75));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function renderFotoGrids(){
+  var hg = document.getElementById('huidigeGrid'), ig = document.getElementById('inspiratieGrid');
+  if(!hg) return;
+  hg.innerHTML = state.fotosHuidig.map(function(src,i){ return '<div class="foto-thumb"><img src="'+src+'"><button class="foto-verwijder" onclick="verwijderFoto(\'huidige\','+i+')">&#10005;</button></div>'; }).join('');
+  ig.innerHTML = state.fotosInspiratie.map(function(src,i){ return '<div class="foto-thumb"><img src="'+src+'"><button class="foto-verwijder" onclick="verwijderFoto(\'inspiratie\','+i+')">&#10005;</button></div>'; }).join('');
+}
+function verwijderFoto(soort, idx){
+  var arr = soort==='huidige' ? state.fotosHuidig : state.fotosInspiratie;
+  arr.splice(idx,1); slaData(); renderFotoGrids();
+}
+
+function onderhoudRank(v){ return {laag:1,gemiddeld:2,hoog:3}[v] || 3; }
+
+function genereerShortlist(){
+  state.filters.extra = document.getElementById('extraWensen').value.trim();
+  var f = state.filters;
+  var maxOnderhoud = onderhoudRank(f.onderhoud);
+  var windNodig = (f.wind==='winderig');
+  function filterLijst(bron){
+    var lijst = bron.filter(function(p){
+      if(f.licht.length && !p.licht.some(function(l){return f.licht.indexOf(l)!==-1;})) return false;
+      if(onderhoudRank(p.onderhoud) > maxOnderhoud) return false;
+      if(windNodig && !p.windbestendig) return false;
+      if(f.jaarrond==='ja' && !p.jaarrond) return false;
+      if(f.stijl && (!p.stijl || p.stijl.indexOf(f.stijl)===-1)) return false;
+      return true;
+    });
+    lijst.forEach(function(p){ p._score = (f.kleur.length && p.kleur) ? p.kleur.filter(function(k){return f.kleur.indexOf(k)!==-1;}).length : 0; });
+    lijst.sort(function(a,b){ return b._score - a._score; });
+    return lijst.slice(0,20);
+  }
+  state.shortlistSier = (f.soortWens.indexOf('sierplanten')!==-1 || f.soortWens.indexOf('structuurgroen')!==-1 || !f.soortWens.length) ? filterLijst(TUIN_SIERPLANTEN) : [];
+  state.shortlistKruiden = (f.soortWens.indexOf('kruiden')!==-1 || f.soortWens.indexOf('groenten')!==-1) ? filterLijst(KRUIDEN_GROENTEN) : [];
+  if(f.soortWens.indexOf('klimplanten')!==-1 || !f.soortWens.length){
+    var klimmers = filterLijst(KLIMPLANTEN);
+    if(f.klimSteun.indexOf('geen')!==-1){ klimmers = klimmers.filter(function(p){return p.zelfhechtend;}); }
+    else if(!f.klimSteun.length){ klimmers.sort(function(a,b){ return (b.zelfhechtend?1:0) - (a.zelfhechtend?1:0) || b._score-a._score; }); }
+    state.shortlistKlimmers = klimmers;
+  } else { state.shortlistKlimmers = []; }
+  slaData(); renderShortlist();
+  toonNotif(t('notif.shortlistGegenereerd'));
+}
+function slaFiltersOp(){
+  state.filters.extra = document.getElementById('extraWensen').value.trim();
+  slaData();
+  toonNotif(t('notif.filtersOpgeslagen'));
+}
+
+function renderShortlist(){
+  var el = document.getElementById('shortlistSecties'); if(!el) return;
+  var h = '';
+  if(state.shortlistSier.length){
+    h += '<div class="sectie-titel" style="margin-top:14px">'+t('voorstel.sierSectie')+'</div>';
+    state.shortlistSier.forEach(function(p){
+      h += '<div class="plant-item"><div class="plant-naam">'+esc(p.naam)+'</div>';
+      h += '<div class="plant-meta">'+p.licht.join('/')+' &middot; '+p.onderhoud+'</div>';
+      if(p.windbestendig) h += '<span class="badge badge-wind">&#128168;</span>';
+      if(p.jaarrond) h += '<span class="badge badge-jaarrond">&#127755;</span>';
+      if(p.bij) h += '<span class="badge badge-bij">&#128029;</span>';
+      h += '</div>';
+    });
+  }
+  if(state.shortlistKruiden.length){
+    h += '<div class="sectie-titel" style="margin-top:14px">'+t('voorstel.kruidenSectie')+'</div>';
+    state.shortlistKruiden.forEach(function(p){
+      h += '<div class="plant-item"><div class="plant-naam">'+esc(p.naam)+'</div>';
+      h += '<div class="plant-meta">'+p.licht.join('/')+' &middot; '+p.onderhoud+'</div>';
+      if(p.windbestendig) h += '<span class="badge badge-wind">&#128168;</span>';
+      if(p.jaarrond) h += '<span class="badge badge-jaarrond">&#127755;</span>';
+      if(p.bij) h += '<span class="badge badge-bij">&#128029;</span>';
+      h += '</div>';
+    });
+  }
+  if(state.shortlistKlimmers.length){
+    h += '<div class="sectie-titel" style="margin-top:14px">'+t('voorstel.klimSectie')+'</div>';
+    state.shortlistKlimmers.forEach(function(p){
+      h += '<div class="plant-item"><div class="plant-naam">'+esc(p.naam)+'</div>';
+      h += '<div class="plant-meta">'+p.licht.join('/')+' &middot; '+p.onderhoud+'</div>';
+      if(p.windbestendig) h += '<span class="badge badge-wind">&#128168;</span>';
+      if(p.jaarrond) h += '<span class="badge badge-jaarrond">&#127755;</span>';
+      if(p.bij) h += '<span class="badge badge-bij">&#128029;</span>';
+      h += p.zelfhechtend ? '<span class="badge badge-klim1">&#129497; zelfhechtend</span>' : '<span class="badge badge-klim2">&#129517; steun nodig</span>';
+      h += '</div>';
+    });
+  }
+  if(!h) h = '<div style="font-size:.75rem;color:#a3826a;text-align:center;padding:16px">'+t('voorstel.geenShortlist')+'</div>';
+  el.innerHTML = h;
+  renderPlattegrond();
+  if(state.voorstelTekst) toonVoorstel();
+}
+
+var PLATTEGROND_KLEUREN = ['#5a8a4a','#a3551f','#7dcf9a','#c97b3d','#8a5aa8','#4a90c9'];
+
+function renderPlattegrond(){
+  var el = document.getElementById('plattegrondSectie'); if(!el) return;
+  var alleSier = state.shortlistSier.slice(0,4);
+  var alleKruiden = state.shortlistKruiden.slice(0,3);
+  var soorten = alleSier.concat(alleKruiden).slice(0,6);
+  if(!soorten.length){ el.innerHTML=''; return; }
+  var p = state.project || {};
+  var breedte = parseFloat(p.breedte)||3, diepte = parseFloat(p.diepte)||2;
+  var ratio = breedte/diepte;
+  var opp = state.oppervlak>0 ? state.oppervlak : Math.round(breedte*diepte*10)/10;
+
+  var h = '<div class="sectie-titel" style="margin-top:14px">'+t('voorstel.plattegrondTitel')+'</div>';
+  h += '<div class="stap-hint">'+t('voorstel.plattegrondHint')+'</div>';
+
+  h += '<div class="eenheid-kader"><div class="eenheid-titel">1 m&#178; &mdash; '+t('voorstel.eenheidLabel')+'</div><div class="eenheid-grid">';
+  soorten.forEach(function(s,i){
+    h += '<div class="eenheid-cirkel" style="background:'+PLATTEGROND_KLEUREN[i%PLATTEGROND_KLEUREN.length]+'">'+(i+1)+'</div>';
+  });
+  h += '</div><div class="eenheid-legenda">';
+  soorten.forEach(function(s,i){
+    h += '<div class="legenda-item"><span class="legenda-nr" style="background:'+PLATTEGROND_KLEUREN[i%PLATTEGROND_KLEUREN.length]+'">'+(i+1)+'</span>'+esc(s.naam)+'</div>';
+  });
+  h += '</div></div>';
+
+  var totaal = Math.max(20, Math.min(160, Math.round(opp*8)));
+  h += '<div class="plattegrond-kader" style="aspect-ratio:'+ratio.toFixed(2)+'">';
+  for(var j=0;j<totaal;j++){
+    var idx = j % soorten.length;
+    h += '<div class="plattegrond-stip" style="background:'+PLATTEGROND_KLEUREN[idx%PLATTEGROND_KLEUREN.length]+'" title="'+esc(soorten[idx].naam)+'">'+(idx+1)+'</div>';
+  }
+  h += '</div>';
+  if(state.shortlistKlimmers.length){
+    h += '<div class="stap-hint" style="margin-top:10px">'+t('voorstel.klimHint')+' '+esc(state.shortlistKlimmers.map(function(x){return x.naam;}).join(', '))+'</div>';
+  }
+  el.innerHTML = h;
+}
+
+function bouwPrompt(){
+  var p = state.project || {naam:'-'};
+  var f = state.filters;
+  var sier = state.shortlistSier.map(function(x){return x.naam;}).join(', ');
+  var kruiden = state.shortlistKruiden.map(function(x){return x.naam;}).join(', ');
+  var klimmers = state.shortlistKlimmers.map(function(x){return x.naam+(x.zelfhechtend?' (self-clinging)':' (needs climbing aid)');}).join(', ');
+  var txt = 'Begin your response with a short introduction line:\n"Analysis by: [your name and version]"\n\n';
+  txt += 'You are an expert garden designer specialised in "tegelwippen" (replacing paving tiles with planting) in small front and back gardens, aiming to boost biodiversity, cool the microclimate, and improve rainwater infiltration. Photos are attached: current paved situation and (if included) inspiration examples. Design a planting and layout plan for the area where tiles will be removed.\n\n';
+  txt += '- Dimensions: '+(p.breedte||'?')+' x '+(p.diepte||'?')+' meter\n';
+  txt += '- Garden type: '+f.type+', wind exposure: '+f.wind+'\n';
+  txt += '- Orientation: '+(f.windrichting.join(', ')||'not specified')+'\n';
+  if(state.klimaatzone) txt += '- Climate zone (from GPS): '+t('kaart.'+state.klimaatzone)+' — take this into account for plant hardiness and heat/drought tolerance\n';
+  txt += '- Priority: '+f.prioriteit+' (plants vs. sitting/lounging space)\n';
+  txt += '- Desired categories: '+(f.soortWens.join(', ')||'no preference')+'\n';
+  if(f.soortWens.indexOf('klimplanten')!==-1 || klimmers){
+    var steunTxt = f.klimSteun.indexOf('geen')!==-1 ? 'no climbing support present (wall/fence, pergola/trellis) — only recommend self-clinging climbers, or state clearly if none are suitable' : (f.klimSteun.length ? f.klimSteun.join(', ')+' available' : 'not specified — ask for or assume the safest option (self-clinging) unless a support structure is visible in the photos');
+    txt += '- Climbing plants wanted; available support: '+steunTxt+'. Distinguish clearly between self-clinging climbers (can grow directly against a wall/fence) and climbers that need a trellis, wires or pergola, and only propose the latter where suitable support is present or can reasonably be added.\n';
+  }
+  txt += '- Light conditions: '+(f.licht.join(', ')||'not specified')+'\n';
+  txt += '- Style: '+(f.stijl||'classic/color-themed')+'\n';
+  if(f.stijl==='cottage'){
+    txt += '- IMPORTANT: cottage garden style was chosen — colour harmony matters more than in other styles. Propose a soft, coherent cottage-garden colour palette (classic combinations such as pink/white/purple/blue, or blends around the flower colours below) and pick plants that flower in a relaxed, layered, romantic way. Prioritise this colour harmony over a strict match to the flower colours listed below if they would clash.\n';
+  }
+  txt += '- Desired flower colors: '+(f.kleur.join(', ')||'no preference')+'\n';
+  txt += '- Maintenance preference: '+f.onderhoud+'\n';
+  txt += '- Year-round greenery important: '+f.jaarrond+'\n';
+  if(f.extra) txt += '- Extra wishes: '+f.extra+'\n';
+  txt += '\nPrefer generally robust, easy-care species that genuinely suit the combination of light, wind exposure, climate zone, style and maintenance level given above, and favour species that support insects, birds and other garden biodiversity where possible. ';
+  if(sier || kruiden || klimmers){
+    txt += 'A few quick offline starter suggestions were found locally (not exhaustive, not verified against every criterion above): '+[sier,kruiden,klimmers].filter(Boolean).join(', ')+'. Use these only as loose inspiration — feel free to replace, drop or add other species that fit better.\n';
+  } else {
+    txt += 'No local shortlist was generated for this session — choose freely based on the criteria above.\n';
+  }
+  txt += '\nProvide one or more concrete proposals: which plants where, approximate quantities per m², and how to balance greenery with any usable path or seating space given the wind and light conditions.\n';
+  txt += 'Also include a simple top-down planting scheme sketch made of text: first define a small repeating "1 m² unit" using numbered circles per species (e.g. (1)(2)(3)), then show how that unit repeats to fill the given dimensions, with a short legend below it mapping each number to a plant name — similar to a professional planting scheme diagram. If climbing plants are included, show them separately along the wall/fence/pergola edge rather than inside the repeating ground unit.\n\n';
+  txt += 'Answer in '+(state.lang==='it'?'Italian':'Dutch')+'.';
+  return txt;
+}
+function kopieerPromptAlleen(){
+  var txt = bouwPrompt();
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ toonNotif(t('notif.promptGekopieerd')); }).catch(function(){ _kopFb(txt); });
+  } else _kopFb(txt);
+}
+function _kopFb(tekst){ var el=document.createElement('textarea'); el.value=tekst; el.style.position='fixed'; el.style.opacity='0'; document.body.appendChild(el); el.focus(); el.select(); try{document.execCommand('copy'); toonNotif(t('notif.promptGekopieerd'));}catch(e){toonNotif(t('notif.kopieerHandmatig'));} document.body.removeChild(el); }
+
+function deelFotosEnPrompt(){
+  var alleFotos = state.fotosHuidig.concat(state.fotosInspiratie);
+  if(!alleFotos.length){ toonNotif(t('notif.geenFotosDeel')); return; }
+  var txt = bouwPrompt();
+  var files = alleFotos.map(function(dataUrl, i){
+    var arr = dataUrl.split(','), mime = arr[0].match(/:(.*?);/)[1], bstr = atob(arr[1]), n = bstr.length, u = new Uint8Array(n);
+    while(n--) u[n] = bstr.charCodeAt(n);
+    return new File([new Blob([u],{type:mime})], 'tegelwippen_'+i+'.jpg', {type:'image/jpeg'});
+  });
+  if(navigator.share && navigator.canShare && navigator.canShare({files:files})){
+    navigator.share({title:'Tegelwippen', text:txt, files:files}).catch(function(e){ if(e.name!=='AbortError') toonNotif(t('notif.delenMislukt')); });
+  } else {
+    kopieerPromptAlleen();
+    toonNotif(t('notif.delenNietOndersteund'));
+  }
+}
+
+function slaVoorstelOp(){
+  var txt = document.getElementById('voorstelAntwoord').value.trim();
+  if(!txt){ toonNotif(t('notif.plakEerstAntwoord')); return; }
+  state.voorstelTekst = txt; slaData(); toonVoorstel();
+  toonNotif(t('notif.voorstelOpgeslagen'));
+}
+function toonVoorstel(){
+  var el = document.getElementById('voorstelWeergave'); if(!el) return;
+  if(!state.voorstelTekst){ el.innerHTML=''; return; }
+  el.innerHTML = '<div class="card" style="margin-top:12px"><div class="label">'+t('voorstel.opgeslagenTitel')+'</div><div style="font-size:.75rem;line-height:1.8;white-space:pre-wrap;color:var(--wit)">'+esc(state.voorstelTekst)+'</div></div>';
+}
+
+function esc(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function exporteerCSV(){
+  if(!state.shortlistSier.length && !state.shortlistKruiden.length && !state.shortlistKlimmers.length){ toonNotif(t('notif.genereerEerstShortlist')); return; }
+  var rijen = [['Naam','Categorie','Licht','Kleur','Onderhoud','Windbestendig','Jaarrond groen','Bijvriendelijk','Zelfhechtend']];
+  state.shortlistSier.forEach(function(p){ rijen.push([p.naam,'sierplant',p.licht.join('/'),(p.kleur||[]).join('/'),p.onderhoud,p.windbestendig?'ja':'nee',p.jaarrond?'ja':'nee',p.bij?'ja':'nee','']); });
+  state.shortlistKruiden.forEach(function(p){ rijen.push([p.naam,'kruid/groente',p.licht.join('/'),'',p.onderhoud,p.windbestendig?'ja':'nee',p.jaarrond?'ja':'nee',p.bij?'ja':'nee','']); });
+  state.shortlistKlimmers.forEach(function(p){ rijen.push([p.naam,'klimplant',p.licht.join('/'),(p.kleur||[]).join('/'),p.onderhoud,p.windbestendig?'ja':'nee',p.jaarrond?'ja':'nee',p.bij?'ja':'nee',p.zelfhechtend?'ja':'nee']); });
+  var csv = rijen.map(function(r){ return r.map(function(c){ return '"'+(c+'').replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download = 'tegelwippen_'+(state.project?state.project.naam.replace(/\s/g,'_'):'export')+'.csv';
+  a.click(); toonNotif(t('notif.csvGedownload'));
+}
+function exporteerVoorstel(){
+  if(!state.voorstelTekst){ toonNotif(t('notif.geenVoorstelOpgeslagen')); return; }
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([state.voorstelTekst],{type:'text/plain;charset=utf-8'}));
+  a.download = 'tegelwippen_voorstel.txt'; a.click(); toonNotif(t('notif.voorstelGedownload'));
+}
+
+function genereerPDF(){
+  toonNotif(t('notif.pdfGeneren'));
+  var p = state.project || {naam:'-',datum:'',breedte:'',diepte:'',gps:''};
+  var nu = new Date().toLocaleDateString(state.lang==='it'?'it-IT':'nl-NL',{day:'2-digit',month:'long',year:'numeric'});
+  var css = ['@page{margin:14mm;size:A4;}','body{font-family:"Helvetica Neue",Arial,sans-serif;font-size:10pt;color:#111;background:#fff;margin:0;padding:6mm;}',
+    'h1{font-family:Georgia,serif;font-size:16pt;color:#3d6b2c;border-bottom:2px solid #3d6b2c;padding-bottom:6px;margin-bottom:8px;}',
+    '.meta{font-size:9pt;color:#555;margin-bottom:12px;line-height:1.7;}',
+    '#pdfKaart{width:100%;height:100mm;border:1px solid #ccc;border-radius:4px;margin-bottom:12px;}',
+    'h2{font-family:Georgia,serif;font-size:12pt;color:#3d6b2c;margin:14px 0 6px;border-bottom:1px solid #cfe0c4;padding-bottom:4px;}',
+    'table{width:100%;border-collapse:collapse;margin-top:6px;font-size:9pt;}','th{background:#eaf2e4;color:#3d6b2c;padding:4px 8px;text-align:left;border:1px solid #ddd;font-size:8pt;}',
+    'td{padding:5px 8px;border:1px solid #eee;}','tr:nth-child(even) td{background:#fafafa;}',
+    '.voorstel-tekst{white-space:pre-wrap;font-size:9.5pt;line-height:1.7;background:#f4faf0;padding:10px;border-left:3px solid #3d6b2c;border-radius:0 3px 3px 0;}',
+    '.footer{text-align:center;font-size:8pt;color:#aaa;margin-top:20px;border-top:1px solid #eee;padding-top:8px;}'].join('');
+  var body = '<h1>Tegelwippen &mdash; '+esc(p.naam)+'</h1>';
+  body += '<div class="meta"><strong>'+t('start.datum')+':</strong> '+p.datum+'<br>';
+  if(p.breedte||p.diepte) body += '<strong>'+t('start.afmetingen')+':</strong> '+(p.breedte||'?')+' x '+(p.diepte||'?')+' m<br>';
+  if(p.gps) body += '<strong>GPS:</strong> '+p.gps+'<br>';
+  if(state.klimaatzone) body += '<strong>&#127757;</strong> '+t('kaart.'+state.klimaatzone)+'<br>';
+  body += '<strong>Oppervlak:</strong> '+state.oppervlak+' m\u00b2<br>';
+  body += '</div>';
+  var gpsData = 'null';
+  if(state.grens.length>=3){
+    body += '<h2>&#128506; '+t('tabs.kaart')+'</h2><div id="pdfKaart"></div>';
+    gpsData = JSON.stringify(state.grens);
+  }
+  if(state.shortlistSier.length){
+    body += '<h2>'+t('voorstel.sierSectie')+'</h2><table><tr><th>Naam</th><th>Licht</th><th>Onderhoud</th><th>Windbestendig</th><th>Jaarrond</th><th>Bij</th></tr>';
+    state.shortlistSier.forEach(function(x){ body += '<tr><td><em>'+esc(x.naam)+'</em></td><td>'+x.licht.join('/')+'</td><td>'+x.onderhoud+'</td><td>'+(x.windbestendig?'\u2713':'')+'</td><td>'+(x.jaarrond?'\u2713':'')+'</td><td>'+(x.bij?'\u2713':'')+'</td></tr>'; });
+    body += '</table>';
+  }
+  if(state.shortlistKruiden.length){
+    body += '<h2>'+t('voorstel.kruidenSectie')+'</h2><table><tr><th>Naam</th><th>Licht</th><th>Onderhoud</th><th>Windbestendig</th><th>Jaarrond</th><th>Bij</th></tr>';
+    state.shortlistKruiden.forEach(function(x){ body += '<tr><td><em>'+esc(x.naam)+'</em></td><td>'+x.licht.join('/')+'</td><td>'+x.onderhoud+'</td><td>'+(x.windbestendig?'\u2713':'')+'</td><td>'+(x.jaarrond?'\u2713':'')+'</td><td>'+(x.bij?'\u2713':'')+'</td></tr>'; });
+    body += '</table>';
+  }
+  if(state.shortlistKlimmers.length){
+    body += '<h2>'+t('voorstel.klimSectie')+'</h2><table><tr><th>Naam</th><th>Licht</th><th>Onderhoud</th><th>Windbestendig</th><th>Jaarrond</th><th>Bij</th><th>Zelfhechtend</th></tr>';
+    state.shortlistKlimmers.forEach(function(x){ body += '<tr><td><em>'+esc(x.naam)+'</em></td><td>'+x.licht.join('/')+'</td><td>'+x.onderhoud+'</td><td>'+(x.windbestendig?'\u2713':'')+'</td><td>'+(x.jaarrond?'\u2713':'')+'</td><td>'+(x.bij?'\u2713':'')+'</td><td>'+(x.zelfhechtend?'\u2713':'&mdash; steun nodig')+'</td></tr>'; });
+    body += '</table>';
+  }
+  if(state.voorstelTekst){ body += '<h2>&#128221; '+t('voorstel.opgeslagenTitel')+'</h2><div class="voorstel-tekst">'+esc(state.voorstelTekst)+'</div>'; }
+  body += '<div class="footer">Tegelwippen &mdash; '+nu+' &mdash; \u00a9 Jan den Hollander</div>';
+  var win = window.open('','_blank','width=1000,height=700');
+  if(!win){ toonNotif(t('notif.popupGeblokkeerd')); return; }
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Tegelwippen &mdash; '+esc(p.naam)+'</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script><style>'+css+'</style></head><body>'+body+
+    '<script>window.onload=function(){var grens='+gpsData+';if(grens&&grens.length>=3&&document.getElementById("pdfKaart")){var k=L.map("pdfKaart",{zoomControl:false,attributionControl:false});L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(k);var latlngs=grens.map(function(p){return [p.lat,p.lng];});var poly=L.polygon(latlngs,{color:"#3d6b2c",fillColor:"#5a8a4a",fillOpacity:.35}).addTo(k);k.fitBounds(poly.getBounds(),{padding:[20,20]});setTimeout(function(){k.invalidateSize();},250);setTimeout(function(){window.print();},1200);}else{setTimeout(function(){window.print();},400);}};<\/script>'+
+    '</body></html>');
+  win.document.close();
+}
+
+function slaData(){
+  try{ localStorage.setItem('tegelwippen_state', JSON.stringify(state)); }catch(e){ toonNotif(t('notif.opslaanMislukt')); }
+}
+function laadData(){
+  try{
+    var s = localStorage.getItem('tegelwippen_state');
+    if(s){
+      var loaded = JSON.parse(s);
+      var savedLang = state.lang;
+      state = Object.assign(state, loaded);
+      if(!loaded.lang) state.lang = savedLang;
+      if(state.project){
+        document.getElementById('projNaam').value = state.project.naam||'';
+        document.getElementById('datumInput').value = state.project.datum||new Date().toISOString().split('T')[0];
+        document.getElementById('breedteInp').value = state.project.breedte||'';
+        document.getElementById('diepteInp').value = state.project.diepte||'';
+        document.getElementById('projLabel').textContent = (state.project.naam||'').substring(0,16);
+        if(state.project.gps) document.getElementById('gpsDisplay').textContent = state.project.gps;
+      }
+      renderFotoGrids();
+    }
+  }catch(e){}
+}
+function updateExportArchief(){
+  var el = document.getElementById('projArchief'); if(!el) return;
+  if(state.project){ el.innerHTML = '<div style="color:var(--wit);margin-bottom:4px">'+esc(state.project.naam)+'</div><div>'+state.project.datum+' &mdash; '+(state.shortlistSier.length+state.shortlistKruiden.length+state.shortlistKlimmers.length)+' &middot; '+(state.fotosHuidig.length+state.fotosInspiratie.length)+' foto\'s</div>'; }
+  else el.textContent = t('export.geenProject');
+}
+function verwijderProject(){
+  if(!confirm(t('notif.confirmWis'))) return;
+  var savedLang = state.lang;
+  state = {project:null, grens:[], oppervlak:0, tekenModus:false, klimaatzone:'',
+    fotosHuidig:[], fotosInspiratie:[],
+    filters:{prioriteit:'beide', soortWens:[], licht:[], kleur:[], stijl:'', onderhoud:'hoog', jaarrond:'geen', extra:'', type:'voortuin', wind:'onbekend', windrichting:[], klimSteun:[]},
+    shortlistSier:[], shortlistKruiden:[], shortlistKlimmers:[], voorstelTekst:'', lang:savedLang};
+  localStorage.removeItem('tegelwippen_state');
+  document.getElementById('projLabel').textContent='-';
+  renderFotoGrids(); renderShortlist(); renderKlimaatInfo(); updateExportArchief(); toonNotif(t('notif.projectGewist'));
+}
+
+function toonNotif(txt){ var n=document.getElementById('notif'); n.textContent=txt; n.classList.add('zichtbaar'); setTimeout(function(){n.classList.remove('zichtbaar');},2400); }
+</script>
+
+<!-- ① ZICHTBARE FOOTER -->
+<div id="jdh-copyright-footer" style="position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.82);color:#ccc;font-size:11px;text-align:center;padding:4px 8px;z-index:99999;font-family:sans-serif;letter-spacing:0.3px;user-select:none;">
+  © <span id="jdh-year"></span> Jan den Hollander &nbsp;|&nbsp;
+  <span id="jdh-project-title" style="color:#7eb8f7"></span> &nbsp;|&nbsp;
+  Vrij gebruik · niet-commercieel · ongewijzigd &nbsp;|&nbsp;
+  <span style="color:#aaa; cursor:pointer; text-decoration:underline" onclick="document.getElementById('jdh-modal').style.display='flex'">ℹ️ Licentie</span>
+</div>
+
+<!-- ② LICENTIE MODAL -->
+<div id="jdh-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:999999; align-items:center; justify-content:center;">
+  <div style="background:#1a1a2e; color:#e0e0e0; border:1px solid #444; border-radius:10px; max-width:480px; width:90%; padding:24px; font-family:sans-serif; font-size:13px; line-height:1.6;">
+    <h3 style="color:#7eb8f7; margin-top:0">© Jan den Hollander &nbsp;·&nbsp; <span id="jdh-modal-title" style="font-weight:normal;font-size:12px"></span></h3>
+    <p>Dit hulpmiddel is <strong>gratis</strong> en mag vrij worden gedeeld, uitsluitend <strong>ongewijzigd</strong> en voor <strong>niet-commerciële</strong> doeleinden, met bronvermelding.</p>
+    <p>Commercieel gebruik, wijziging of verkoop is <strong>verboden</strong> zonder schriftelijke toestemming. Het gebruik van naam of projecttitel impliceert geen toestemming en vormt bij commercieel gebruik een zelfstandige auteursrechtinbreuk.</p>
+    <p style="color:#aaa;font-size:11px">This tool is free and may be shared freely, unmodified, for non-commercial purposes only, with attribution.<br><br>Quest'opera è gratuita e può essere condivisa liberamente, senza modifiche, per scopi non commerciali, con attribuzione.</p>
+    <p style="margin-bottom:4px">📧 <a href="mailto:jandenhollander@duck.com" style="color:#7eb8f7">jandenhollander@duck.com</a></p>
+    <p style="margin-top:4px;margin-bottom:0">🔗 <a href="https://github.com/Jan-den-Hollander" target="_blank" style="color:#7eb8f7">github.com/Jan-den-Hollander</a></p>
+    <button onclick="document.getElementById('jdh-modal').style.display='none'" style="margin-top:16px;padding:8px 20px;background:#7eb8f7;color:#000;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Sluiten</button>
+  </div>
+</div>
+
+<!-- ③ INTEGRITEITSCHECK + URL-CHECK -->
+<script>
+(function() {
+  'use strict';
+  var projectName = document.title || 'Onbekend project';
+  var yearEl = document.getElementById('jdh-year'); if (yearEl) yearEl.textContent = new Date().getFullYear();
+  var titleEl = document.getElementById('jdh-project-title'); if (titleEl) titleEl.textContent = projectName;
+  var modalTitleEl = document.getElementById('jdh-modal-title'); if (modalTitleEl) modalTitleEl.textContent = projectName;
+
+  var ALLOWED = ['localhost','127.0.0.1','jan-den-hollander.github.io','tegelwippen.vercel.app','tegelwippen','claude.ai','stackblitz.io','stackblitz.com'];
+  function domainAllowed() {
+    var host = window.location.hostname.toLowerCase(); var proto = window.location.protocol;
+    if (proto === 'file:' || proto === 'content:') return true;
+    if (!host || host === '') return true;
+    return ALLOWED.some(function(a){ return host === a || host.endsWith('.' + a) || host.indexOf(a) !== -1; });
+  }
+  function warnDomain() {
+    var banner = document.createElement('div'); banner.id = 'jdh-domain-warning';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99998;background:#8a2010;color:#fff;font-family:sans-serif;font-size:12px;text-align:center;padding:8px 12px;line-height:1.5;';
+    banner.innerHTML = '⚠️ <strong>' + projectName + '</strong> draait op een niet-erkend domein (<em>' + window.location.hostname + '</em>). Origineel: <a href="https://github.com/Jan-den-Hollander" target="_blank" style="color:#ffccaa">github.com/Jan-den-Hollander</a> · <a href="mailto:jandenhollander@duck.com" style="color:#ffccaa">jandenhollander@duck.com</a>';
+    document.body.insertBefore(banner, document.body.firstChild);
+  }
+  if (!domainAllowed()) { setTimeout(warnDomain, 800); }
+
+  function blockApp() {
+    document.body.innerHTML = '';
+    document.body.style.cssText = 'margin:0;background:#111;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;';
+    document.body.innerHTML = '<div style="text-align:center;color:#e55;max-width:440px;padding:24px"><div style="font-size:52px">⛔</div><h2 style="color:#e55;margin:12px 0 8px">Toegang geblokkeerd</h2><p style="color:#ddd;font-size:14px">De copyright-informatie van <strong style="color:#7eb8f7">' + projectName + '</strong> is verwijderd of gewijzigd.</p><hr style="border-color:#333;margin:16px 0"><p style="color:#ccc;font-size:13px">© Jan den Hollander</p><p><a href="mailto:jandenhollander@duck.com" style="color:#7eb8f7;font-size:12px">jandenhollander@duck.com</a></p><p><a href="https://github.com/Jan-den-Hollander" target="_blank" style="color:#7eb8f7;font-size:12px">🔗 github.com/Jan-den-Hollander</a></p></div>';
+  }
+  function checkIntegrity() {
+    var footer = document.getElementById('jdh-copyright-footer'); var modal = document.getElementById('jdh-modal');
+    if (!footer || !modal) { blockApp(); return; }
+    var fs = window.getComputedStyle(footer);
+    if (fs.display === 'none' || fs.visibility === 'hidden' || fs.opacity === '0') { footer.style.cssText += ';display:block!important;visibility:visible!important;opacity:1!important'; }
+  }
+  checkIntegrity(); setInterval(checkIntegrity, 3000);
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) { m.removedNodes.forEach(function(node) { if (node.id === 'jdh-copyright-footer' || node.id === 'jdh-modal') blockApp(); }); });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
+</body>
+</html>
